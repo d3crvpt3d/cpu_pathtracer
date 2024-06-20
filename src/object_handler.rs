@@ -1,7 +1,7 @@
 use std::{fs::File, io::Read};
 use stl_parser::*;
 
-pub fn read_to_polygon_vec(path: &str) -> Mesh{
+pub fn stl_to_vec(path: &str) -> Mesh{
   
   let mut buf: String = String::new();
 

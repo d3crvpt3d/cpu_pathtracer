@@ -18,6 +18,12 @@ impl BvhTree{
     }
   }
 
+  pub fn get_first_hit_color(&self, ray: (f32, f32, f32)) -> (u16, u16, u16, u16){//RGBA
+
+    //DEBUG
+    (0, 0, 0, 0)
+  }
+
 }
 
 
