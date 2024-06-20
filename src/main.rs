@@ -1,3 +1,7 @@
+mod raycaster;
+mod renderer;
+mod object_handler;
+
 fn main() {
-    println!("Hello, world!");
+    let array: [[(u8, u8, u8); 1080]; 1920];
 }
