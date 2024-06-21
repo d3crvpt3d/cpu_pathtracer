@@ -1,10 +1,7 @@
-#![allow(unused)]
-
-use std::cmp::Ordering;
 use stl_parser::{Mesh, Triangle};
-use serde::{Serialize, Deserialize};
+//use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize)]
+//#[derive(Serialize, Deserialize)]
 pub struct BvhTree{
   root: Box<Volume>,
 
@@ -12,9 +9,9 @@ pub struct BvhTree{
 
 impl BvhTree{
   
-  pub fn from_mesh(m: Mesh) -> Self{
+  pub fn from_mesh(m: Mesh, max_elements: usize) -> Self{
     BvhTree{
-      root: Box::new(Volume::new(m, 4)),
+      root: Box::new(Volume::new(m, max_elements)),
     }
   }
 
@@ -25,11 +22,11 @@ impl BvhTree{
   }
 
 }
-
-#[derive(Serialize, Deserialize)]
+#[allow(unused)]
+//#[derive(Serialize, Deserialize)]
 struct Volume{
   max_elements: usize,
-  #[serde(with = "MeshDef")]
+  //#[serde(with = "MeshDef")]
   mesh: Mesh,
   bounding_box: ((f32, f32), (f32, f32)),
   num_elements: usize,
@@ -38,8 +35,9 @@ struct Volume{
 
 }
 
+#[allow(unused)]
 impl Volume{
-
+  
   pub fn next_axis(&self) -> u8{
     (self.axis + 1) % 3
   }
@@ -110,16 +108,16 @@ impl Volume{
 }
 
 
-#[derive(Serialize, Deserialize)]
-#[serde(remote = "Triangle")]
-struct TriangleDef{
-  pub vertices: [[f32; 3]; 3],
-  pub lines: [([f32; 3], [f32; 3]); 3],
-}
+// #[derive(Serialize, Deserialize)]
+// #[serde(remote = "Triangle")]
+// struct TriangleDef{
+//   pub vertices: [[f32; 3]; 3],
+//   pub lines: [([f32; 3], [f32; 3]); 3],
+// }
 
-#[derive(Serialize, Deserialize)]
-#[serde(remote = "Mesh")]
-struct MeshDef{
-  #[serde(with = "TriangleDef")]
-  pub triangles: Vec<Triangle>,
-}
+// #[derive(Serialize, Deserialize)]
+// #[serde(remote = "Mesh")]
+// struct MeshDef{
+//   #[serde(with = "TriangleDef")]
+//   pub triangles: Vec<Triangle>,
+// }

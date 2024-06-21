@@ -8,6 +8,6 @@ pub mod ray_caster{
 
 
 
-    vec![vec![(0f32, 0f32, 0f32); Y]; X]//DEBUG
+    vec![vec![(0f32, 0f32, 0f32); X]; Y]//DEBUG
   }
 }
