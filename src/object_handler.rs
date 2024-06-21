@@ -1,5 +1,5 @@
 use std::{fs::File, io::Read};
-use stl_parser::*;
+use stl_parser::Mesh;
 
 pub fn stl_to_vec(path: &str) -> Mesh{
   

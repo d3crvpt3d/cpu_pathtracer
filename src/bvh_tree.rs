@@ -2,9 +2,9 @@
 
 use std::cmp::Ordering;
 use stl_parser::{Mesh, Triangle};
+use serde::{Serialize, Deserialize};
 
-
-
+#[derive(Serialize, Deserialize)]
 pub struct BvhTree{
   root: Box<Volume>,
 
@@ -18,17 +18,18 @@ impl BvhTree{
     }
   }
 
-  pub fn get_first_hit_color(&self, ray: (f32, f32, f32)) -> (u16, u16, u16, u16){//RGBA
+  pub fn get_first_hit_color(&self, ray: &(f32, f32, f32)) -> Option<[u8; 3]>{//RGBA
 
-    //DEBUG
-    (0, 0, 0, 0)
+    //todo
+    Some([0x00u8; 3])
   }
 
 }
 
-
+#[derive(Serialize, Deserialize)]
 struct Volume{
   max_elements: usize,
+  #[serde(with = "MeshDef")]
   mesh: Mesh,
   bounding_box: ((f32, f32), (f32, f32)),
   num_elements: usize,
@@ -106,4 +107,19 @@ impl Volume{
     ((0f32, 0f32), (0f32, 0f32))
   }
 
+}
+
+
+#[derive(Serialize, Deserialize)]
+#[serde(remote = "Triangle")]
+struct TriangleDef{
+  pub vertices: [[f32; 3]; 3],
+  pub lines: [([f32; 3], [f32; 3]); 3],
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(remote = "Mesh")]
+struct MeshDef{
+  #[serde(with = "TriangleDef")]
+  pub triangles: Vec<Triangle>,
 }

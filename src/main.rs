@@ -1,6 +1,8 @@
+use std::{fmt::format, fs::File, io::{BufReader, Write}};
+
 use bvh_tree::BvhTree;
-use renderer::ImgBuffer;
 use raycaster::ray_caster::get_rays;
+use serde::{Deserialize, Serialize};
 
 mod raycaster;
 mod renderer;
@@ -13,28 +15,42 @@ fn main() {
   let camera_pos: (f32, f32) = (0f32, 0f32);
   const PIXELS: (usize, usize) = (160, 90);
 
+  let mut args: Vec<String> = std::env::args().collect();
 
+  //argument monads
+  if args.len() < 2{
+    eprintln!("3D-Object not specified, using <teapot.stl>");
+    args.push("teapot.stl".to_string());
+  }
+  if args.len() < 3{
+    eprintln!("Output-File not specified, using <traced_picture.jpg>");
+    args.push("traced_picture.jpg".to_string());
+  }
 
-  let args: Vec<String> = std::env::args().collect();
+  let bvh: BvhTree;
 
-  let mesh = object_handler::stl_to_vec(&args[1]);
+  //create BVH-Tree if input file is STL not BVH
+  if args[1].ends_with("stl"){
 
-  let bvh = BvhTree::from_mesh(mesh);
+    eprintln!("Reading STL-File: {}..", &args[1]);
+    let mesh = object_handler::stl_to_vec(&args[1]);
 
-  let mut img_buffer: ImgBuffer<{PIXELS.0}, {PIXELS.1}> = ImgBuffer::new();
+    eprintln!("Creating BVH-Tree from Mesh..");
+    bvh = BvhTree::from_mesh(mesh);//generate BVH tree
+    let mut f = File::create(format!("{}.bvh",&args[1][0..args[1].len()-4])).unwrap(); //open output file from "original.stl" to "original.bvh"
+    f.write_all(serde_json::to_string(&bvh).unwrap().as_bytes());//save bvh file
 
-  let rays: [(f32, f32, f32); PIXELS.0 * PIXELS.1] = get_rays(fov, camera_pos);
+  }else {
 
+    eprintln!("Reading BVH-Tree from {}..", &args[1]);
+    bvh = serde_json::from_reader(BufReader::new(File::open(&args[1]).unwrap())).unwrap();//read BVH-Tree from File
+  
+  }
 
-  //check if ray intersects with a polygon
-  rays.iter().enumerate().for_each(|(px, ray)| {
+  eprintln!("Pathtracing..");
+  let rays = get_rays::<{PIXELS.0}, {PIXELS.1}>(fov, camera_pos);
 
-    let curr_x = px % PIXELS.1;
-    let curr_y = px - curr_x * PIXELS.0;
+  renderer::render_and_save(bvh, rays, &args[3]);
 
-    let color:(u16, u16, u16, u16)  = bvh.get_first_hit_color(*ray);
-
-    //128*100/256 = 128*10 >> 8 = 1280 >> 8 = 5;
-    img_buffer.array[curr_x][curr_y] = (((color.0 * color.3) >> 8) as u8, ((color.0 * color.3) >> 8) as u8, ((color.0 * color.3) >> 8) as u8);
-  });
+  println!("Done, saved to {}", args[2]);
 }
