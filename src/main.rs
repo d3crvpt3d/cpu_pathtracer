@@ -1,7 +1,7 @@
 #![allow(unused)]
-//use std::{fmt::format, fs::File, io::{BufReader, Write}};
+use std::{sync::mpsc::channel, thread::{self}, fmt::format, fs::File, io::{BufReader, Write}};
+use indicatif::ProgressBar;
 use core::time;
-use std::{fs::{self, File}, sync::mpsc::channel, thread::{self, Thread}};
 
 use bvh_tree::BvhTree;
 use raycaster::ray_caster::get_rays;
@@ -11,6 +11,7 @@ mod raycaster;
 mod renderer;
 mod object_handler;
 mod bvh_tree;
+mod stl_parser_copy;
 
 fn main() {
 
@@ -30,16 +31,6 @@ fn main() {
     args.push("traced_picture.jpg".to_string());
   }
 
-  let (tx, ty) = channel();
-
-  let eprntthread = thread::spawn(move ||{
-
-    while ty.try_recv().is_err() {
-      thread::sleep(time::Duration::from_secs(1));
-      eprint!(".");
-    }
-  });
-
   let bvh: BvhTree;
 
   //create BVH-Tree if input file is STL not BVH
@@ -50,7 +41,6 @@ fn main() {
 
     eprintln!("Creating BVH-Tree from Mesh..");
     bvh = BvhTree::from_mesh(mesh, 4, camera_pos);//generate BVH tree
-
     
     //let mut f = File::create(format!("{}.bvh",&args[1][0..args[1].len()-4])).unwrap(); //open output file from "original.stl" to "original.bvh"
     //f.write_all(serde_json::to_string(&bvh).unwrap().as_bytes());//save bvh file
@@ -68,6 +58,4 @@ fn main() {
   renderer::render_and_save(bvh, rays, &args[2]);
 
   println!("Done, saved to {}", args[2]);
-  tx.send(true).unwrap();
-  eprntthread.join().unwrap();
 }

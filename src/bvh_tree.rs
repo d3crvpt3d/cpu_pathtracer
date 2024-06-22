@@ -1,11 +1,11 @@
 #![allow(unused)]
-use stl_parser::{Mesh, Triangle};
+use crate::stl_parser_copy::{Mesh, Triangle};
 //use serde::{Serialize, Deserialize};
 
 //#[derive(Serialize, Deserialize)]
 pub struct BvhTree{
-  root: Box<Volume>,
-  camera_pos: [f32; 3],
+  pub root: Box<Volume>,
+  pub camera_pos: [f32; 3],
 }
 
 impl BvhTree{
@@ -17,16 +17,19 @@ impl BvhTree{
     }
   }
 
-  pub fn get_first_hit_color(&self, ray: &[f32; 3]) -> Option<[u8; 3]>{//RGBA
-
-    //todo
-    Some([0x00u8; 3])
-  }
-
 }
+
+fn hit_box(ray: &[f32; 3], vol: &Volume) -> bool{
+  todo!("calc vector/box intersection");
+}
+
+fn hit_triangle(ray: &[f32; 3], t: &Triangle) -> bool{
+  todo!("calc vector/triangle intersection");
+}
+
 #[allow(unused)]
 //#[derive(Serialize, Deserialize)]
-struct Volume{
+pub struct Volume{
   max_elements: usize,
   //#[serde(with = "MeshDef")]
   mesh: Mesh,
@@ -102,24 +105,37 @@ impl Volume{
     )
   }
 
+  pub fn get_first_hit_color(&self, ray: &[f32; 3]) -> Option<[u8; 3]>{//RGBA, closer AABB is the first half, because it "partitiones" it with [<,=,>]
+
+    if hit_box(ray, self){
+      
+      if self.childs.is_some(){//if AABB has childs test them first
+        
+        let inner = self.childs.as_ref().unwrap().0.get_first_hit_color(ray);
+
+        if inner.is_some(){
+          return inner;
+        }else {
+          return self.childs.as_ref().unwrap().1.get_first_hit_color(ray);
+        }
+
+      }else {//AABB is leaf
+        
+        for t in &self.mesh.triangles{
+          if self::hit_triangle(ray, t){
+            return Some([0xFFu8; 3]);
+          }
+        }
+        return Some([0xFFu8; 3]);
+      }
+
+    }
+    Some([0xFFu8; 3])
+  }
+
   const fn get_min_max(m: &Mesh) -> ((f32, f32), (f32, f32)){
     //TODO
     ((0f32, 0f32), (0f32, 0f32))
   }
 
 }
-
-
-// #[derive(Serialize, Deserialize)]
-// #[serde(remote = "Triangle")]
-// struct TriangleDef{
-//   pub vertices: [[f32; 3]; 3],
-//   pub lines: [([f32; 3], [f32; 3]); 3],
-// }
-
-// #[derive(Serialize, Deserialize)]
-// #[serde(remote = "Mesh")]
-// struct MeshDef{
-//   #[serde(with = "TriangleDef")]
-//   pub triangles: Vec<Triangle>,
-// }

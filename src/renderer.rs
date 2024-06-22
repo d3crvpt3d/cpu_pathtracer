@@ -9,7 +9,7 @@ pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){//
 	let mut img = image::RgbImage::new( imgx as u32, imgy as u32);
 
 	for (x, y, pixel) in img.enumerate_pixels_mut(){
-		let color = match bvh.get_first_hit_color(&rays[y as usize][x as usize]) {
+		let color = match bvh.root.get_first_hit_color(&rays[y as usize][x as usize]) {
 				Some(c) 	=> image::Rgb(c),
 				_ 								=> image::Rgb([0x00u8, 0x00u8, 0x00u8]),
 		};
