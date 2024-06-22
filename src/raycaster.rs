@@ -16,8 +16,8 @@ pub mod ray_caster{
 
       for x in 0..X{
         
-        let x_calc: f32 = a * ((2*x / (X-1)) - 1) as f32;
-        let y_calc: f32 = a * ((2*y / (Y-1)) - 1) as f32;
+        let x_calc: f32 = a * ((2*x) as f32 / (X-1) as f32) - 1.;
+        let y_calc: f32 = a * ((2*y) as f32 / (Y-1) as f32) - 1.;
 
         let ray: [f32; 3] = [cam_pos[0] + x_calc, cam_pos[1] + y_calc, cam_pos[2] + 1.];//cam_pos + XYZ
         xvec.push(ray);

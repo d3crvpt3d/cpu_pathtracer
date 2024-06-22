@@ -1,3 +1,4 @@
+#![allow(unused)]
 use stl_parser::{Mesh, Triangle};
 //use serde::{Serialize, Deserialize};
 
