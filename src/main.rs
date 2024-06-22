@@ -15,7 +15,7 @@ mod bvh_tree;
 fn main() {
 
   let fov: usize = 90;
-  let camera_pos: (f32, f32) = (0f32, 0f32);
+  let camera_pos: [f32; 3] = [0f32; 3];
   const PIXELS: (usize, usize) = (160, 90);
 
   let mut args: Vec<String> = std::env::args().collect();
@@ -49,7 +49,7 @@ fn main() {
     let mesh = object_handler::stl_to_vec(&args[1]);
 
     eprintln!("Creating BVH-Tree from Mesh..");
-    bvh = BvhTree::from_mesh(mesh, 4);//generate BVH tree
+    bvh = BvhTree::from_mesh(mesh, 4, camera_pos);//generate BVH tree
 
     
     //let mut f = File::create(format!("{}.bvh",&args[1][0..args[1].len()-4])).unwrap(); //open output file from "original.stl" to "original.bvh"

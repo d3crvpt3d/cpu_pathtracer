@@ -1,7 +1,7 @@
 use crate::bvh_tree::BvhTree;
 use image;
 
-pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<(f32, f32, f32)>>, path: &String){// [[px; X]; Y]
+pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){// [[px; X]; Y]
 
 	let imgx = rays[0].len();
 	let imgy = rays.len();

@@ -4,18 +4,19 @@ use stl_parser::{Mesh, Triangle};
 //#[derive(Serialize, Deserialize)]
 pub struct BvhTree{
   root: Box<Volume>,
-
+  camera_pos: [f32; 3],
 }
 
 impl BvhTree{
   
-  pub fn from_mesh(m: Mesh, max_elements: usize) -> Self{
+  pub fn from_mesh(m: Mesh, max_elements: usize, camera_pos: [f32; 3]) -> Self{
     BvhTree{
       root: Box::new(Volume::new(m, max_elements)),
+      camera_pos,
     }
   }
 
-  pub fn get_first_hit_color(&self, ray: &(f32, f32, f32)) -> Option<[u8; 3]>{//RGBA
+  pub fn get_first_hit_color(&self, ray: &[f32; 3]) -> Option<[u8; 3]>{//RGBA
 
     //todo
     Some([0x00u8; 3])
