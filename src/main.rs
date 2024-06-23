@@ -1,5 +1,5 @@
 #![allow(unused)]
-use std::{sync::mpsc::channel, thread::{self}, fmt::format, fs::File, io::{BufReader, Write}};
+use std::{fmt::format, fs::{File, FileType}, io::{BufReader, Write}, sync::mpsc::channel, thread};
 use indicatif::ProgressBar;
 use core::time;
 
@@ -16,7 +16,7 @@ mod stl_parser_copy;
 fn main() {
 
   let fov: usize = 90;
-  let camera_pos: [f32; 3] = [0f32, 0f32, -10f32];
+  let camera_pos: [f32; 3] = [0f32, 0f32, -6f32];
   const PIXELS: (usize, usize) = (160, 90);
 
   let mut args: Vec<String> = std::env::args().collect();
@@ -37,8 +37,25 @@ fn main() {
   eprintln!("Reading STL-File: {}..", &args[1]);
   let mesh = object_handler::stl_to_vec(&args[1]);
 
-  eprintln!("Creating BVH-Tree from Mesh..");
-  bvh = BvhTree::from_mesh(mesh, 4, camera_pos);//generate BVH tree
+  let bvh_file = File::open(&args[1]).expect("cant open file");
+
+  if args[1].ends_with(".stl"){
+
+    eprintln!("Creating BVH-Tree from Mesh..");
+    bvh = BvhTree::from_mesh(mesh, 4, camera_pos);//generate BVH tree
+
+    let mut outf = File::create(format!("{}", args[1].replace("stl", "bvh"))).expect("cant create file");
+    outf.write_all(serde_json::to_string_pretty(&bvh).expect("cant create string from bvh-tree").as_bytes()).expect("cant write to bvh file");
+
+  }else if args[1].ends_with(".bvh"){
+
+    eprintln!("Reading BVH-Tree from File..");
+    bvh = serde_json::from_reader(BufReader::new(bvh_file)).unwrap();
+
+  }else {
+    eprintln!("File not 'stl' or 'bvh'");
+    return;
+  }
 
   eprintln!("Pathtracing..");
   let mut rays = get_rays::<{PIXELS.0}, {PIXELS.1}>(fov, camera_pos);

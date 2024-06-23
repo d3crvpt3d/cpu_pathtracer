@@ -2,9 +2,10 @@
 use std::{cmp::{max, min, Ordering}, f32::NAN};
 
 use crate::stl_parser_copy::{Mesh, Triangle};
-//use serde::{Serialize, Deserialize};
+use serde::{Serialize, Deserialize};
 
-//#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct BvhTree{
   pub root: Box<Volume>,
   pub camera_pos: [f32; 3],
@@ -66,11 +67,11 @@ fn hit_triangle(ray: &[f32; 3], t: &Triangle) -> bool{
 }
 
 #[allow(unused)]
-//#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct Volume{
   max_elements: usize,
   camera_pos: [f32; 3],
-  //#[serde(with = "MeshDef")]
   mesh: Vec<Triangle>,
   bounding_box: ([f32; 3], [f32; 3]),
   num_elements: usize,
@@ -178,7 +179,7 @@ impl Volume{
       }
 
     }
-    Some([0xFFu8; 3])
+    None
   }
 
   fn get_min_max(m: &Vec<Triangle>) -> ([f32; 3], [f32; 3]){
