@@ -16,7 +16,7 @@ mod stl_parser_copy;
 fn main() {
 
   let fov: usize = 90;
-  let camera_pos: [f32; 3] = [0f32; 3];
+  let camera_pos: [f32; 3] = [0f32, 0f32, -10f32];
   const PIXELS: (usize, usize) = (160, 90);
 
   let mut args: Vec<String> = std::env::args().collect();
@@ -53,7 +53,9 @@ fn main() {
   //}
 
   eprintln!("Pathtracing..");
-  let rays = get_rays::<{PIXELS.0}, {PIXELS.1}>(fov, camera_pos);
+  let mut rays = get_rays::<{PIXELS.0}, {PIXELS.1}>(fov, camera_pos);
+
+  rays = raycaster::ray_caster::transform_direction(rays);
 
   renderer::render_and_save(bvh, rays, &args[2]);
 

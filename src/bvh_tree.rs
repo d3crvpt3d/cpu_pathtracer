@@ -1,4 +1,6 @@
 #![allow(unused)]
+use std::{cmp::{max, min, Ordering}, f32::NAN};
+
 use crate::stl_parser_copy::{Mesh, Triangle};
 //use serde::{Serialize, Deserialize};
 
@@ -19,12 +21,48 @@ impl BvhTree{
 
 }
 
-fn hit_box(ray: &[f32; 3], vol: &Volume) -> bool{
-  todo!("calc vector/box intersection");
+//credit zacharmarz
+fn hit_box(ray: &[f32; 3], vol: &Volume) -> (bool, f32){
+
+  let teil_x: f32 = 1. /ray[0];
+  let teil_y: f32 = 1. /ray[1];
+  let teil_z: f32 = 1. /ray[2];
+
+  let bb_lw_xy = vol.bounding_box.0;
+  let bb_gr_xy = vol.bounding_box.1;
+
+  let cam_pos = vol.camera_pos;
+
+  let t1: f32 = (bb_lw_xy[0] - cam_pos[0]) * teil_x;
+  let t2: f32 = (bb_gr_xy[0] - cam_pos[0]) * teil_x;
+  let t3: f32 = (bb_lw_xy[1] - cam_pos[1]) * teil_y;
+  let t4: f32 = (bb_gr_xy[1] - cam_pos[1]) * teil_y;
+  let t5: f32 = (bb_lw_xy[2] - cam_pos[2]) * teil_z;
+  let t6: f32 = (bb_gr_xy[2] - cam_pos[2]) * teil_z;
+
+  let tmin = f32::max(f32::max(f32::min(t1, t2), f32::min(t1, t2)), f32::min(t5, t6));
+  let tmax = f32::min(f32::min(f32::max(t1, t2), f32::max(t1, t2)), f32::max(t5, t6));
+
+  let t: f32;
+
+  if tmax < 0f32{
+    t = tmax;
+    return (false, t);
+  }
+
+  if tmin > tmax{
+    t = tmax;
+    return (false, t);
+  }
+
+  //intersects
+  t = tmin;
+  return (true, t);
 }
 
 fn hit_triangle(ray: &[f32; 3], t: &Triangle) -> bool{
-  todo!("calc vector/triangle intersection");
+  return false;
+  //todo!("calc vector/triangle intersection");
 }
 
 #[allow(unused)]
@@ -34,7 +72,7 @@ pub struct Volume{
   camera_pos: [f32; 3],
   //#[serde(with = "MeshDef")]
   mesh: Vec<Triangle>,
-  bounding_box: ((f32, f32), (f32, f32)),
+  bounding_box: ([f32; 3], [f32; 3]),
   num_elements: usize,
   axis: u8,//0: x, 1: y, 2: z (mod 3)
   childs: Option<(Box<Volume>, Box<Volume>)>,
@@ -49,7 +87,7 @@ impl Volume{
   }
 
   pub fn new(m: Vec<Triangle>, max_elements: usize, camera_pos: [f32; 3]) -> Self{
-    let bounding_box:((f32, f32), (f32, f32)) = Volume::get_min_max(&m);
+    let bounding_box:([f32; 3], [f32; 3]) = Volume::get_min_max(&m);
     Volume{
       max_elements,
       camera_pos,
@@ -109,7 +147,11 @@ impl Volume{
 
   pub fn get_first_hit_color(&self, ray: &[f32; 3]) -> Option<[u8; 3]>{//RGBA, closer AABB is the first half, because it "partitiones" it with [<,=,>]
 
-    if hit_box(ray, self){
+    let (hit, depth) = hit_box(ray, self);
+
+    let depth_with_falloff: [u8; 3];
+
+    if hit{
       
       if self.childs.is_some(){//if AABB has childs test them first
         
@@ -122,22 +164,25 @@ impl Volume{
         }
 
       }else {//AABB is leaf
+        eprintln!("hitleaf");//DEBUG
         
         for t in &self.mesh{
           if self::hit_triangle(ray, t){
             return Some([0xFFu8; 3]);
           }
         }
-        return Some([0xFFu8; 3]);
+        
+        depth_with_falloff = [(255f32 / (depth*depth)) as u8; 3];//calculate percieved depth
+        return Some(depth_with_falloff);//DEBUG, real value: Some([0x00u8; 3])
       }
 
     }
     Some([0xFFu8; 3])
   }
 
-  const fn get_min_max(m: &Vec<Triangle>) -> ((f32, f32), (f32, f32)){
+  const fn get_min_max(m: &Vec<Triangle>) -> ([f32; 3], [f32; 3]){
     //TODO
-    ((0f32, 0f32), (0f32, 0f32))
+    ([1f32; 3], [1f32; 3])
   }
 
 }

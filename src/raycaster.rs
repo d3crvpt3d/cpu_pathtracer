@@ -31,4 +31,9 @@ pub mod ray_caster{
     //TODO: use polar coordinates
     //TODO: cast evenly rays from 'cam_pos' to 0-fov/2 and 0+fov/2
   }
+
+  pub fn transform_direction(rays: Vec<Vec<[f32; 3]>>) -> Vec<Vec<[f32; 3]>>{
+    //TODO
+    rays
+  }
 }
