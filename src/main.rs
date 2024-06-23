@@ -33,24 +33,12 @@ fn main() {
 
   let bvh: BvhTree;
 
-  //create BVH-Tree if input file is STL not BVH
-  //if args[1].ends_with("stl"){
+  //TODO:create BVH-Tree if input file is STL not BVH
+  eprintln!("Reading STL-File: {}..", &args[1]);
+  let mesh = object_handler::stl_to_vec(&args[1]);
 
-    eprintln!("Reading STL-File: {}..", &args[1]);
-    let mesh = object_handler::stl_to_vec(&args[1]);
-
-    eprintln!("Creating BVH-Tree from Mesh..");
-    bvh = BvhTree::from_mesh(mesh, 4, camera_pos);//generate BVH tree
-    
-    //let mut f = File::create(format!("{}.bvh",&args[1][0..args[1].len()-4])).unwrap(); //open output file from "original.stl" to "original.bvh"
-    //f.write_all(serde_json::to_string(&bvh).unwrap().as_bytes());//save bvh file
-
-  //}else {
-
-    //eprintln!("Reading BVH-Tree from {}..", &args[1]);
-    //bvh = serde_json::from_reader(BufReader::new(File::open(&args[1]).unwrap())).unwrap();//read BVH-Tree from File
-  
-  //}
+  eprintln!("Creating BVH-Tree from Mesh..");
+  bvh = BvhTree::from_mesh(mesh, 4, camera_pos);//generate BVH tree
 
   eprintln!("Pathtracing..");
   let mut rays = get_rays::<{PIXELS.0}, {PIXELS.1}>(fov, camera_pos);

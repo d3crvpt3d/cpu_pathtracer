@@ -166,7 +166,6 @@ impl Volume{
         }
 
       }else {//AABB is leaf
-        eprintln!("hitleaf");//DEBUG
         
         for t in &self.mesh{
           if self::hit_triangle(ray, t){
