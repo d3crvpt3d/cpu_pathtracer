@@ -87,7 +87,9 @@ impl Volume{
   }
 
   pub fn new(m: Vec<Triangle>, max_elements: usize, camera_pos: [f32; 3]) -> Self{
-    let bounding_box:([f32; 3], [f32; 3]) = Volume::get_min_max(&m);
+    
+    let bounding_box:([f32; 3], [f32; 3]) = Self::get_min_max(&m);
+
     Volume{
       max_elements,
       camera_pos,
@@ -180,9 +182,33 @@ impl Volume{
     Some([0xFFu8; 3])
   }
 
-  const fn get_min_max(m: &Vec<Triangle>) -> ([f32; 3], [f32; 3]){
-    //TODO
-    ([1f32; 3], [1f32; 3])
+  fn get_min_max(m: &Vec<Triangle>) -> ([f32; 3], [f32; 3]){
+    //TODO: efficient
+
+    let mut minx: f32 = f32::MAX;
+    let mut miny: f32 = f32::MAX;
+    let mut minz: f32 = f32::MAX;
+    let mut maxx: f32 = f32::MIN;
+    let mut maxy: f32 = f32::MIN;
+    let mut maxz: f32 = f32::MIN;
+
+    for t in m {
+      for vert in t.vertices {
+        for point in vert {
+
+          minx = minx.min(point);
+          miny = miny.min(point);
+          minz = minz.min(point);
+
+          maxx = maxx.max(point);
+          maxy = maxy.max(point);
+          maxz = maxz.max(point);
+
+        }
+      }
+    }
+
+    ([minx, miny, minz], [maxx, maxy, maxz])
   }
 
 }
