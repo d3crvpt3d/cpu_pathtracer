@@ -27,19 +27,18 @@ fn main() {
     args.push("teapot.stl".to_string());
   }
   if args.len() < 3{
-    eprintln!("Output-File not specified, using <traced_picture.jpg>");
-    args.push("traced_picture.jpg".to_string());
+    eprintln!("Output-File not specified, using <traced_picture.png>");
+    args.push("traced_picture.png".to_string());
   }
 
   let bvh: BvhTree;
 
-  //TODO:create BVH-Tree if input file is STL not BVH
-  eprintln!("Reading STL-File: {}..", &args[1]);
-  let mesh = object_handler::stl_to_vec(&args[1]);
-
   let bvh_file = File::open(&args[1]).expect("cant open file");
 
   if args[1].ends_with(".stl"){
+
+    eprintln!("Reading STL-File: {}..", &args[1]);
+    let mesh = object_handler::stl_to_vec(&args[1]);
 
     eprintln!("Creating BVH-Tree from Mesh..");
     bvh = BvhTree::from_mesh(mesh, 4, camera_pos);//generate BVH tree

@@ -22,5 +22,5 @@ pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){//
 
 	}
 	
-	img.save(path).expect("cant write picture");
+	img.save_with_format(path, image::ImageFormat::Png).expect("cant write picture");
 }
