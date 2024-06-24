@@ -39,10 +39,6 @@ pub struct Volume{
 
 #[allow(unused)]
 impl Volume{
-  
-  pub fn next_axis(&self) -> u8{
-    (self.axis + 1) % 3
-  }
 
   pub fn new(m: Vec<Triangle>, max_elements: usize, camera_pos: [f32; 3]) -> Self{
     
@@ -60,16 +56,16 @@ impl Volume{
 
     //DEBUG
     //DEBUG
-    if vol.num_elements > max_elements{
-      let mesh2 = vol.split(max_elements,(vol.axis + 1) % 3);
+    // if vol.num_elements > max_elements{
+    //   let mesh2 = vol.split((vol.axis + 1) % 3);
 
-      let child_a = Volume::new(vol.mesh, max_elements, camera_pos);
-      let child_b= Volume::new(mesh2, max_elements, camera_pos);
+    //   let child_a = Volume::new(vol.mesh, max_elements, camera_pos);
+    //   let child_b= Volume::new(mesh2, max_elements, camera_pos);
 
-      vol.mesh = Vec::new();
+    //   vol.mesh = Vec::new();
 
-      vol.childs = Some((Box::new(child_a), Box::new(child_b)));
-    }
+    //   vol.childs = Some((Box::new(child_a), Box::new(child_b)));
+    // }
     //DEBUG
     //DEBUG
 
@@ -77,7 +73,7 @@ impl Volume{
   }
 
   //partition triangles, modifies 'mesh' and returns new array
-  pub fn split(&mut self, max_elements: usize, axis: u8) -> Vec<Triangle>{
+  pub fn split(&mut self, axis: u8) -> Vec<Triangle>{
 
     let n = self.mesh.len();
 
