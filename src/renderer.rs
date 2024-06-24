@@ -1,5 +1,6 @@
 use crate::bvh_tree::BvhTree;
 use image;
+use indicatif::ProgressStyle;
 
 pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){// [[px; X]; Y]
 
@@ -10,7 +11,12 @@ pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){//
 		
 	let mut img = image::RgbImage::new( imgx as u32, imgy as u32);
 
+  let bar = indicatif::ProgressBar::new((imgx*imgy) as u64);
+  bar.set_style(ProgressStyle::with_template("{wide_bar:.green/blue} {eta}").unwrap().progress_chars("##-"));
+
 	for (x, y, pixel) in img.enumerate_pixels_mut(){
+
+    bar.inc(1);
 
 		let k = bvh.root.get_first_hit_color(&rays[y as usize][x as usize]);
 		
@@ -21,6 +27,7 @@ pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){//
 		}
 
 	}
+  bar.finish();
 	
 	img.save_with_format(path, image::ImageFormat::Png).expect("cant write picture");
 }
