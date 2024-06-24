@@ -122,7 +122,7 @@ impl Volume{
         }
 
         if depth != INFINITY{
-          return Some([0xFFu8; 3]);//with falloff: 'Some([(255f32 / depth) as u8; 3])'
+          return Some([(255f32 / depth) as u8; 3]);//without falloff: 'Some([0xFFu8; 3])'
         }
 
         return None;//DEBUG, real value: Some([0x00u8; 3])
