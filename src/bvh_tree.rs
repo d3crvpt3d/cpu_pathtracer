@@ -56,16 +56,16 @@ impl Volume{
 
     //DEBUG
     //DEBUG
-    // if vol.num_elements > max_elements{
-    //   let mesh2 = vol.split((vol.axis + 1) % 3);
+    if vol.num_elements > max_elements{
+      let mesh2 = vol.split((vol.axis + 1) % 3);
 
-    //   let child_a = Volume::new(vol.mesh, max_elements, camera_pos);
-    //   let child_b= Volume::new(mesh2, max_elements, camera_pos);
+      let child_a = Volume::new(vol.mesh, max_elements, camera_pos);
+      let child_b= Volume::new(mesh2, max_elements, camera_pos);
 
-    //   vol.mesh = Vec::new();
+      vol.mesh = Vec::new();
 
-    //   vol.childs = Some((Box::new(child_a), Box::new(child_b)));
-    // }
+      vol.childs = Some((Box::new(child_a), Box::new(child_b)));
+    }
     //DEBUG
     //DEBUG
 
@@ -77,9 +77,16 @@ impl Volume{
 
     let n = self.mesh.len();
 
-    //partition at n/2
+    //partition at n/2 by averaging current axis <=> (x0+x1+x2/3, y0+y1+y2/3, z0+z1+z2/3)
     self.mesh.select_nth_unstable_by( n/2,|e1, e2| {
-      e1.vertices[0][axis as usize].partial_cmp(&e2.vertices[0][axis as usize]).expect("some float is NaN")
+
+      let uno = e1.vertices[axis as usize];
+      let dos = e2.vertices[axis as usize];
+
+      let avg1 = uno[0] + uno[1] + uno[2] / 3.;
+      let avg2 = dos[0] + dos[1] + dos[2] / 3.;
+
+      avg1.partial_cmp(&avg2).expect("some float is NaN")
     });
     
     let mesh_2 = self.mesh.split_off(n/2);//[0..n/2)[n/2..len)
