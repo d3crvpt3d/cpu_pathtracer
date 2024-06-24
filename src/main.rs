@@ -23,12 +23,12 @@ fn main() {
 
   //argument monads
   if args.len() < 2{
-    eprintln!("3D-Object not specified, using <teapot.stl>");
-    args.push("teapot.stl".to_string());
+    eprintln!("3D-Object not specified, using <storage/teapot.stl>");
+    args.push("storage/teapot.stl".to_string());
   }
   if args.len() < 3{
-    eprintln!("Output-File not specified, using <traced_picture.png>");
-    args.push("traced_picture.png".to_string());
+    eprintln!("Output-File not specified, using <storage/traced_picture.png>");
+    args.push("storage/traced_picture.png".to_string());
   }
 
   let bvh: BvhTree;

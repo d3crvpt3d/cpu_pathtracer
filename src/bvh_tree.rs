@@ -60,16 +60,16 @@ impl Volume{
 
     //DEBUG
     //DEBUG
-    // if vol.num_elements > max_elements{
-    //   let mesh2 = vol.split(max_elements,(vol.axis + 1) % 3);
+    if vol.num_elements > max_elements{
+      let mesh2 = vol.split(max_elements,(vol.axis + 1) % 3);
 
-    //   let child_a = Volume::new(vol.mesh, max_elements, camera_pos);
-    //   let child_b= Volume::new(mesh2, max_elements, camera_pos);
+      let child_a = Volume::new(vol.mesh, max_elements, camera_pos);
+      let child_b= Volume::new(mesh2, max_elements, camera_pos);
 
-    //   vol.mesh = Vec::new();
+      vol.mesh = Vec::new();
 
-    //   vol.childs = Some((Box::new(child_a), Box::new(child_b)));
-    // }
+      vol.childs = Some((Box::new(child_a), Box::new(child_b)));
+    }
     //DEBUG
     //DEBUG
 
