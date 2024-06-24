@@ -12,7 +12,7 @@ pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){//
 	let mut img = image::RgbImage::new( imgx as u32, imgy as u32);
 
   let bar = indicatif::ProgressBar::new((imgx*imgy) as u64);
-  bar.set_style(ProgressStyle::with_template("{wide_bar:.green/blue} {eta}").unwrap().progress_chars("##-"));
+  bar.set_style(ProgressStyle::with_template("{wide_bar:.green/blue} {eta}").unwrap().progress_chars("#%-"));
 
 	for (x, y, pixel) in img.enumerate_pixels_mut(){
 

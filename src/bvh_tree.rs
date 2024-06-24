@@ -102,36 +102,33 @@ impl Volume{
     };
 
     if vol.num_elements > max_elements{
-      vol.childs = vol.split(max_elements, (vol.axis + 1) % 3);
-    }
+      let mesh2 = vol.split(max_elements,(vol.axis + 1) % 3);
 
+      let tmp = 
+
+      let child_a = Volume::new(vol.mesh, max_elements, camera_pos);
+      let child_b= Volume::new(mesh2, max_elements, camera_pos);
+
+      vol.childs = Some((Box::new(child_a), Box::new(child_b)));
+    }
 
     vol
   }
 
-  //partition triangles and give [0..len/2] = child.0, [len/2..len-1] = child.1
-  pub fn split(&mut self, max_elements: usize, axis: u8) -> Option<(Box<Volume>,Box<Volume>)>{
+  //partition triangles, modifies 'mesh' and returns new array
+  pub fn split(&mut self, max_elements: usize, axis: u8) -> Vec<Triangle>{
 
-    let n = self.num_elements;
+    let n = self.mesh.len();
 
     //partition at n/2
     self.mesh.select_nth_unstable_by( n/2,|e1, e2| {
       e1.vertices[0][axis as usize].partial_cmp(&e2.vertices[0][axis as usize]).expect("some float is NaN")
     });
-
-    let mesh_1: Vec<Triangle> = self.mesh[0..n/2].to_vec();//[0..n/2]
-    let mesh_2: Vec<Triangle> = self.mesh[n/2..n].to_vec();//[n/2..n]
-
-    let mut vol1 = Volume::new(mesh_1, max_elements, self.camera_pos);
-    let mut vol2 = Volume::new(mesh_2, max_elements, self.camera_pos);
+    
+    let mesh_2 = self.mesh.split_off(n/2);//[0..n/2)[n/2..len)
 
     //return childs
-    Some(
-      (
-        Box::new(vol1),
-        Box::new(vol2)
-      )
-    )
+    mesh_2
   }
 
   pub fn get_first_hit_color(&self, ray: &[f32; 3]) -> Option<[u8; 3]>{//RGBA, closer AABB is the first half, because it "partitiones" it with [<,=,>]
