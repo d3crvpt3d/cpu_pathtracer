@@ -61,11 +61,6 @@ fn hit_box(ray: &[f32; 3], vol: &Volume) -> (bool, f32){
   return (true, t);
 }
 
-fn hit_triangle(ray: &[f32; 3], t: &Triangle) -> bool{
-  return false;
-  //todo!("calc vector/triangle intersection");
-}
-
 #[allow(unused)]
 #[derive(Serialize, Deserialize)]
 #[derive(Debug)]
@@ -104,10 +99,10 @@ impl Volume{
     if vol.num_elements > max_elements{
       let mesh2 = vol.split(max_elements,(vol.axis + 1) % 3);
 
-      let tmp = 
-
       let child_a = Volume::new(vol.mesh, max_elements, camera_pos);
       let child_b= Volume::new(mesh2, max_elements, camera_pos);
+
+      vol.mesh = Vec::new();
 
       vol.childs = Some((Box::new(child_a), Box::new(child_b)));
     }
@@ -152,9 +147,16 @@ impl Volume{
       }else {//AABB is leaf
         
         for t in &self.mesh{
-          if self::hit_triangle(ray, t){
-            return Some([0xFFu8; 3]);
+
+          let mut depth: f32 = f32::INFINITY;
+
+          let curr_depth = self.hit_triangle(ray, t);
+
+          if curr_depth.is_some(){
+            depth = depth.min(Self::distance(&self.camera_pos, &curr_depth.unwrap()));
           }
+
+          return Some([(255f32 / depth) as u8; 3]);//depth := color
         }
         
         depth_with_falloff = [(255f32 / depth) as u8; 3];//calculate percieved depth
@@ -163,6 +165,71 @@ impl Volume{
 
     }
     None
+  }
+
+  //pythagoras
+  fn distance(a: &[f32; 3], b: &[f32; 3]) -> f32{
+    f32::sqrt((b[0]-a[0]).powi(2) + (b[1]-a[1]).powi(2) + (b[2]-a[2]).powi(2))
+  }
+
+  //returns intersection point
+  pub fn hit_triangle(&self, ray: &[f32; 3], t: &Triangle) -> Option<[f32; 3]>{//https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+
+    let epsylon = f32::EPSILON;
+
+    let edge1 = Self::sub(&t.vertices[1], &t.vertices[0]);
+    let edge2 = Self::sub(&t.vertices[2], &t.vertices[0]);
+    
+    let ray_cross_e2 = Self::cross(ray, &edge2);
+    let det = Self::dot(&edge1, &ray_cross_e2);
+
+    if det > -epsylon && det < epsylon{
+      return None;
+    }
+
+    let inv_det = 1. / det;
+    let s = Self::sub(&self.camera_pos, &t.vertices[0]);
+    let u = inv_det * Self::dot(ray, &ray_cross_e2);
+
+    if u > 0. || u > 1. {
+      return None;
+    }
+
+    let s_cross_e1 = Self::cross(&s, &edge1);
+    let v = inv_det * Self::dot(ray, &s_cross_e1);
+
+    if v < 0. || u + v > 1.{
+      return None;
+    }
+
+    let t = inv_det * Self::dot(ray, &s_cross_e1);
+
+    if t > epsylon{
+      return Some(Self::add(&self.camera_pos, &Self::mul(ray, t)));
+    }else {
+      return None;
+    }
+
+  }
+
+  fn mul(a: &[f32; 3], b: f32) -> [f32; 3]{
+    [a[0]*b, a[1]*b, a[2]*b]
+  }
+
+  fn add(a: &[f32; 3], b: &[f32; 3]) -> [f32; 3]{
+    [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
+  }
+
+  fn dot(a: &[f32; 3], b: &[f32; 3]) -> f32{
+    a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
+  }
+  
+  fn cross(a: &[f32; 3], b: &[f32; 3]) -> [f32; 3]{
+    [a[1]*b[2] - a[2]*b[1], a[2]*b[0] - a[0]*b[2], a[0]*b[1] - a[1]*b[0]]
+  }
+
+  fn sub(a: &[f32; 3], b: &[f32; 3]) -> [f32; 3]{
+    [ a[0] - b[0], a[1] - b[1], a[2] - b[2]]
   }
 
   fn get_min_max(m: &Vec<Triangle>) -> ([f32; 3], [f32; 3]){

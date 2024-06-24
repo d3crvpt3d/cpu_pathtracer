@@ -17,7 +17,7 @@ fn main() {
 
   let fov: usize = 90;
   let camera_pos: [f32; 3] = [0., 1.5, -10.];
-  const PIXELS: (usize, usize) = (160, 90);
+  const PIXELS: (usize, usize) = (1600, 900);
 
   let mut args: Vec<String> = std::env::args().collect();
 
