@@ -8,7 +8,7 @@ pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){//
 	let imgx = rays[0].len();
 	let imgy = rays.len();
 
-	let none = image::Rgb([0x00u8; 3]);
+	let no_color = image::Rgb([0x00u8; 3]);
 		
 	let mut img = image::RgbImage::new( imgx as u32, imgy as u32);
 
@@ -24,7 +24,7 @@ pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){//
 		if k.is_some(){
 			*pixel = image::Rgb(k.unwrap());
 		}else {
-			*pixel = none;
+			*pixel = no_color;
 		}
 
   });

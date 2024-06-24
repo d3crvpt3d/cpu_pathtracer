@@ -1,5 +1,5 @@
 #![allow(unused)]
-use std::{cmp::{max, min, Ordering}, f32::NAN};
+use std::{cmp::{max, min, Ordering}, f32::{INFINITY, NAN}};
 
 use crate::stl_parser_copy::{Mesh, Triangle};
 use serde::{Serialize, Deserialize};
@@ -22,44 +22,6 @@ impl BvhTree{
 
 }
 
-//credit zacharmarz
-fn hit_box(ray: &[f32; 3], vol: &Volume) -> (bool, f32){
-
-  let teil_x: f32 = 1. /ray[0];
-  let teil_y: f32 = 1. /ray[1];
-  let teil_z: f32 = 1. /ray[2];
-
-  let bb_lw_xy = vol.bounding_box.0;
-  let bb_gr_xy = vol.bounding_box.1;
-
-  let cam_pos = vol.camera_pos;
-
-  let t1: f32 = (bb_lw_xy[0] - cam_pos[0]) * teil_x;
-  let t2: f32 = (bb_gr_xy[0] - cam_pos[0]) * teil_x;
-  let t3: f32 = (bb_lw_xy[1] - cam_pos[1]) * teil_y;
-  let t4: f32 = (bb_gr_xy[1] - cam_pos[1]) * teil_y;
-  let t5: f32 = (bb_lw_xy[2] - cam_pos[2]) * teil_z;
-  let t6: f32 = (bb_gr_xy[2] - cam_pos[2]) * teil_z;
-
-  let tmin = f32::max(f32::max(f32::min(t1, t2), f32::min(t1, t2)), f32::min(t5, t6));
-  let tmax = f32::min(f32::min(f32::max(t1, t2), f32::max(t1, t2)), f32::max(t5, t6));
-
-  let t: f32;
-
-  if tmax < 0f32{
-    t = tmax;
-    return (false, t);
-  }
-
-  if tmin > tmax{
-    t = tmax;
-    return (false, t);
-  }
-
-  //intersects
-  t = tmin;
-  return (true, t);
-}
 
 #[allow(unused)]
 #[derive(Serialize, Deserialize)]
@@ -98,16 +60,16 @@ impl Volume{
 
     //DEBUG
     //DEBUG
-    if vol.num_elements > max_elements{
-      let mesh2 = vol.split(max_elements,(vol.axis + 1) % 3);
+    // if vol.num_elements > max_elements{
+    //   let mesh2 = vol.split(max_elements,(vol.axis + 1) % 3);
 
-      let child_a = Volume::new(vol.mesh, max_elements, camera_pos);
-      let child_b= Volume::new(mesh2, max_elements, camera_pos);
+    //   let child_a = Volume::new(vol.mesh, max_elements, camera_pos);
+    //   let child_b= Volume::new(mesh2, max_elements, camera_pos);
 
-      vol.mesh = Vec::new();
+    //   vol.mesh = Vec::new();
 
-      vol.childs = Some((Box::new(child_a), Box::new(child_b)));
-    }
+    //   vol.childs = Some((Box::new(child_a), Box::new(child_b)));
+    // }
     //DEBUG
     //DEBUG
 
@@ -132,13 +94,11 @@ impl Volume{
 
   pub fn get_first_hit_color(&self, ray: &[f32; 3]) -> Option<[u8; 3]>{//RGBA, closer AABB is the first half, because it "partitiones" it with [<,=,>]
 
-    let (hit, depth) = hit_box(ray, self);
+    let depth = self.hit_box(ray);
 
-    let depth_with_falloff: [u8; 3];
-
-    if hit{
+    if depth.is_some(){
       
-      if self.childs.is_some(){//if AABB has childs test them first
+      if self.childs.is_some(){//if AABB has childs test them
         
         let inner = self.childs.as_ref().unwrap().0.get_first_hit_color(ray);
 
@@ -150,21 +110,22 @@ impl Volume{
 
       }else {//AABB is leaf
         
-        for t in &self.mesh{
+        let mut depth: f32 = f32::INFINITY;
 
-          let mut depth: f32 = f32::INFINITY;
+        for t in &self.mesh{
 
           let curr_depth = self.hit_triangle(ray, t);
 
-          if curr_depth.is_some(){
+          if curr_depth.is_some(){//update depth to nearest intersection
             depth = depth.min(Self::distance(&self.camera_pos, &curr_depth.unwrap()));
           }
-
-          return Some([(255f32 / depth) as u8; 3]);//depth := color
         }
-        
-        depth_with_falloff = [(255f32 / depth) as u8; 3];//calculate percieved depth
-        return Some(depth_with_falloff);//DEBUG, real value: Some([0x00u8; 3])
+
+        if depth != INFINITY{
+          return Some([0xFFu8; 3]);//with falloff: 'Some([(255f32 / depth) as u8; 3])'
+        }
+
+        return None;//DEBUG, real value: Some([0x00u8; 3])
       }
 
     }
@@ -176,15 +137,68 @@ impl Volume{
     f32::sqrt((b[0]-a[0]).powi(2) + (b[1]-a[1]).powi(2) + (b[2]-a[2]).powi(2))
   }
 
-  //returns intersection point
-  pub fn hit_triangle(&self, ray: &[f32; 3], t: &Triangle) -> Option<[f32; 3]>{//https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+  //fast reciprocal
+  fn rcp(a: &[f32; 3]) -> [f32; 3]{
+    [a[0].recip() , a[1].recip(), a[2].recip()]
+  }
 
+  fn min3(a: &[f32; 3], b: &[f32; 3]) -> [f32; 3]{
+    if Self::abs3(a) < Self::abs3(b){
+      return *a;
+    }else {
+      return *b;
+    }
+  }
+
+  fn max3(a: &[f32; 3], b: &[f32; 3]) -> [f32; 3]{
+    if Self::abs3(a) > Self::abs3(b){
+      return *a;
+    }else {
+      return *b;
+    }
+  }
+
+  fn abs3(a: &[f32; 3]) -> f32{
+    f32::sqrt(a[0].powi(2) + a[1].powi(2) + a[2].powi(2))
+  }
+
+  fn matmul(a: &[f32; 3], b: &[f32; 3]) -> [f32; 3]{//maybe
+    [a[0] * b[0], a[1] * b[1], a[2] * b[2]]
+  }
+
+  //credit zacharmarz
+  fn hit_box(&self, ray: &[f32; 3]) -> Option<f32>{
+
+    let origin = self.camera_pos;
+    let aabb = self.bounding_box;
+
+    let inv_d = Self::rcp(ray);
+    let t0s = Self::matmul(&Self::sub3(&aabb.0, &origin), &inv_d);
+    let t1s = Self::matmul(&Self::sub3(&aabb.1, &origin), &inv_d);
+
+    let tsmaller = Self::min3(&t0s, &t1s);
+    let tbigger = Self::max3(&t0s, &t1s);
+
+
+    let tmin = f32::max(f32::max(tsmaller[0], tsmaller[1]), tsmaller[2]);
+    let tmax = f32::min(f32::min(tbigger[0], tbigger[1]), tbigger[2]);
+
+    if tmin < tmax{
+      return Some(tmin);
+    }
+    return None;
+  }
+
+  //returns intersection point
+  pub fn hit_triangle(&self, direction: &[f32; 3], t: &Triangle) -> Option<[f32; 3]>{//https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+
+    let origin = self.camera_pos;
     let epsylon = f32::EPSILON;
 
-    let edge1 = Self::sub(&t.vertices[1], &t.vertices[0]);
-    let edge2 = Self::sub(&t.vertices[2], &t.vertices[0]);
+    let edge1 = Self::sub3(&t.vertices[1], &t.vertices[0]);
+    let edge2 = Self::sub3(&t.vertices[2], &t.vertices[0]);
     
-    let ray_cross_e2 = Self::cross(ray, &edge2);
+    let ray_cross_e2 = Self::cross(direction, &edge2);
     let det = Self::dot(&edge1, &ray_cross_e2);
 
     if det > -epsylon && det < epsylon{
@@ -192,24 +206,24 @@ impl Volume{
     }
 
     let inv_det = 1. / det;
-    let s = Self::sub(&self.camera_pos, &t.vertices[0]);
-    let u = inv_det * Self::dot(ray, &ray_cross_e2);
+    let s = Self::sub3(&origin, &t.vertices[0]);
+    let u = inv_det * Self::dot(&s, &ray_cross_e2);
 
-    if u > 0. || u > 1. {
+    if u < 0. || u > 1. {
       return None;
     }
 
     let s_cross_e1 = Self::cross(&s, &edge1);
-    let v = inv_det * Self::dot(ray, &s_cross_e1);
+    let v = inv_det * Self::dot(direction, &s_cross_e1);
 
     if v < 0. || u + v > 1.{
       return None;
     }
 
-    let t = inv_det * Self::dot(ray, &s_cross_e1);
+    let t = inv_det * Self::dot(&edge2, &s_cross_e1);
 
     if t > epsylon{
-      return Some(Self::add(&self.camera_pos, &Self::mul(ray, t)));
+      return Some(Self::add(&origin, &Self::mul(direction, t)));
     }else {
       return None;
     }
@@ -232,7 +246,7 @@ impl Volume{
     [a[1]*b[2] - a[2]*b[1], a[2]*b[0] - a[0]*b[2], a[0]*b[1] - a[1]*b[0]]
   }
 
-  fn sub(a: &[f32; 3], b: &[f32; 3]) -> [f32; 3]{
+  fn sub3(a: &[f32; 3], b: &[f32; 3]) -> [f32; 3]{
     [ a[0] - b[0], a[1] - b[1], a[2] - b[2]]
   }
 
