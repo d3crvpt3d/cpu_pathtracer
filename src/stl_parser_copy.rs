@@ -2,6 +2,7 @@ use std::{fmt::Write, ops::Sub};
 
 use indicatif::{ProgressBar, ProgressState, ProgressStyle};
 use serde::{Deserialize, Serialize};
+use rayon::prelude::*;
 
 //use stl_parser::{Mesh, Triangle, Vertex}; copied from this to use with serde
 pub type Vertex = [f32;3];
@@ -37,36 +38,49 @@ impl Mesh
     ///Give files text, not name
     pub fn from_ascii(data: String)->Mesh
     {
-        let mut vec: Vec<Triangle> = Vec::new();
-        let iterator: Vec<&str> =  data.split_whitespace().collect();
+      let mut vec: Vec<Triangle> = Vec::with_capacity(64);
+      let iterator: Vec<&str> = data.par_split_whitespace().collect();
 
-        //added
-        let bar = ProgressBar::new(iterator.len() as u64);
-        bar.set_style(ProgressStyle::with_template("{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({eta})")
-        .unwrap()
-        .with_key("eta", |state: &ProgressState, w: &mut dyn Write| write!(w, "{:.1}s", state.eta().as_secs_f64()).unwrap())
-        .progress_chars("=>-"));
-        //added
+      //added
+      let bar = ProgressBar::new(iterator.len() as u64);
+      bar.set_style(ProgressStyle::with_template("{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({eta})")
+      .unwrap()
+      .with_key("eta", |state: &ProgressState, w: &mut dyn Write| write!(w, "{:.1}s", state.eta().as_secs_f64()).unwrap())
+      .progress_chars("=>-"));
+      //added
 
-        let mut vertex: Vec<Vertex> = Vec::new();
-        let mut iter = 0;
-        for word in iterator.clone(){
-            if word == "vertex"
-            {
-                vertex.push([iterator.clone()[iter+1].parse::<f32>().unwrap(), iterator.clone()[iter+2].parse::<f32>().unwrap(), 
-                            iterator.clone()[iter+3].parse::<f32>().unwrap()]);
-            }
-            if word == "endloop"
-            {
-                vec.push(Triangle::new([vertex.remove(0), vertex.remove(0), vertex.remove(0)]));
-                vertex = Vec::new();
-            }
-            iter+=1;
-            bar.inc(1);//added
+      let mut vertex: [[f32; 3]; 3] = [[0f32; 3]; 3];
+
+      let t = Triangle::new([[0f32; 3]; 3]);
+      let mut v_it = 0;
+
+      for (it, &word) in iterator.iter().enumerate(){
+
+        if word == "vertex" {
+
+          vertex[v_it] = [iterator[it+1].parse::<f32>().unwrap(),
+                          iterator[it+2].parse::<f32>().unwrap(),
+                          iterator[it+3].parse::<f32>().unwrap()];
+          
+          v_it += 1;
         }
-        bar.finish();//added
-        Mesh{triangles: vec}
+
+        if word == "endloop" {
+
+          vec.push(Triangle::new(vertex));
+          vertex = [[0f32; 3]; 3];
+          v_it = 0;
+          
+        }
+
+        bar.inc(1);//added
+      }
+      bar.finish();//added
+
+      Mesh{triangles: vec}
     }
+
+
     pub fn slice(&self, axis: Axis, point: f32)->Slice
     {
         let mut slice: Slice = Vec::new();

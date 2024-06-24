@@ -96,6 +96,8 @@ impl Volume{
       childs: None,
     };
 
+    //DEBUG
+    //DEBUG
     if vol.num_elements > max_elements{
       let mesh2 = vol.split(max_elements,(vol.axis + 1) % 3);
 
@@ -106,6 +108,8 @@ impl Volume{
 
       vol.childs = Some((Box::new(child_a), Box::new(child_b)));
     }
+    //DEBUG
+    //DEBUG
 
     vol
   }
