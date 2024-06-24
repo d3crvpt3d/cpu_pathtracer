@@ -174,7 +174,7 @@ impl Volume{
           }
         }
         
-        depth_with_falloff = [(255f32 / (depth*depth)) as u8; 3];//calculate percieved depth
+        depth_with_falloff = [(255f32 / depth) as u8; 3];//calculate percieved depth
         return Some(depth_with_falloff);//DEBUG, real value: Some([0x00u8; 3])
       }
 
