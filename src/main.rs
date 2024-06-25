@@ -13,7 +13,7 @@ mod stl_parser_copy;
 fn main() {
 
   let fov: usize = 90;
-  let camera_pos: [f32; 3] = [0., 1., -4.];
+  let camera_pos: [f32; 3] = [0., 2., -4.];
   const PIXELS: (usize, usize) = (800, 450);
 
   let mut args: Vec<String> = std::env::args().collect();
