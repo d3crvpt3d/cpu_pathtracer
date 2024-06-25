@@ -170,6 +170,7 @@ dependencies = [
 name = "cpu_pathtracer"
 version = "0.1.0"
 dependencies = [
+ "glam",
  "image",
  "indicatif",
  "rayon",
@@ -299,6 +300,12 @@ dependencies = [
  "color_quant",
  "weezl",
 ]
+
+[[package]]
+name = "glam"
+version = "0.28.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "779ae4bf7e8421cf91c0b3b64e7e8b40b862fba4d393f59150042de7c4965a94"
 
 [[package]]
 name = "half"

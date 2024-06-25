@@ -4,7 +4,7 @@ pub mod ray_caster{
   //y z
   //↑↗
   //0→x
-  pub fn get_rays<const X: usize, const Y: usize>(fov: usize) -> Vec<Vec<[f32; 3]>>{//TODO:fix
+  pub fn get_rays<const X: usize, const Y: usize>(fov: usize) -> Vec<Vec<[f32; 3]>>{
 
     let a: f32 = f32::tan((fov as f32 / 360f32) * PI);//a = steigung
     let xf = (X-1) as f32;
@@ -12,7 +12,7 @@ pub mod ray_caster{
 
     let mut yvec: Vec<Vec<[f32; 3]>> = Vec::with_capacity(Y);
 
-    for y in 0..Y{
+    for y in (Y-1)..=0{//flip y-axis for image::
 
       let mut xvec: Vec<[f32; 3]> = Vec::with_capacity(X);
 
@@ -29,15 +29,15 @@ pub mod ray_caster{
     //DEBUG
     //DEBUG
     //DEBUG
-    // let mut rays_img = image::RgbImage::new(X as u32, Y as u32);
+    let mut rays_img = image::RgbImage::new(X as u32, Y as u32);
     
-    // for (x, y, pixel) in rays_img.enumerate_pixels_mut(){
-    //   *pixel = image::Rgb([ (yvec[y as usize][x as usize][0].atan() * 255f32) as u8,
-    //                         (yvec[y as usize][x as usize][1].atan() * 255f32) as u8,
-    //                         (yvec[y as usize][x as usize][2].atan() * 255f32) as u8]
-    //                       );
-    // }
-    // rays_img.save_with_format("rays_image.png", image::ImageFormat::Png);
+    for (x, y, pixel) in rays_img.enumerate_pixels_mut(){
+      *pixel = image::Rgb([ (yvec[y as usize][x as usize][0].atan() * 255f32) as u8,
+                            (yvec[y as usize][x as usize][1].atan() * 255f32) as u8,
+                            (yvec[y as usize][x as usize][2].atan() * 255f32) as u8]
+                          );
+    }
+    rays_img.save_with_format("rays_image.png", image::ImageFormat::Png).unwrap();
     //DEBUG
     //DEBUG
     //DEBUG

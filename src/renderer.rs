@@ -1,4 +1,5 @@
 use crate::bvh_tree::BvhTree;
+use glam::Vec3;
 use image;
 use indicatif::ProgressStyle;
 use rayon::prelude::*;
@@ -21,12 +22,12 @@ pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){//
 
     let groot = &bvh.root;
 
-    let ray = rays[y as usize][x as usize];
+    let ray = Vec3::from_array(rays[y as usize][x as usize]);
 
     let mut k = groot.hit_box(&ray);
 
     if k.is_finite(){//if hit get closest triangle intersection
-      k = groot.get_first_hit_depth(&rays[y as usize][x as usize]);
+      k = groot.get_first_hit_depth(&ray);
     };
 		
 		if k.is_finite(){
