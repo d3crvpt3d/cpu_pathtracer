@@ -1,5 +1,3 @@
-use std::f32::INFINITY;
-
 use crate::stl_parser_copy::{Mesh, Triangle};
 use serde::{Serialize, Deserialize};
 
@@ -7,15 +5,13 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug)]
 pub struct BvhTree{
   pub root: Box<Volume>,
-  pub camera_pos: [f32; 3],
 }
 
 impl BvhTree{
   
   pub fn from_mesh(m: Mesh, max_elements: usize, camera_pos: [f32; 3]) -> Self{
     BvhTree{
-      root: Box::new(Volume::new(m.triangles, max_elements, camera_pos)),
-      camera_pos,
+      root: Box::new(Volume::new(m.triangles, max_elements, camera_pos, 0))
     }
   }
 
@@ -39,7 +35,7 @@ pub struct Volume{
 #[allow(unused)]
 impl Volume{
 
-  pub fn new(m: Vec<Triangle>, max_elements: usize, camera_pos: [f32; 3]) -> Self{
+  pub fn new(m: Vec<Triangle>, max_elements: usize, camera_pos: [f32; 3], axis: u8) -> Self{
     
     let bounding_box:([f32; 3], [f32; 3]) = Self::get_min_max(&m);
 
@@ -49,17 +45,18 @@ impl Volume{
       num_elements: m.len(),
       mesh: m,//Vec<Triangles>
       bounding_box,
-      axis: 0,
+      axis,
       childs: None,
     };
 
     //DEBUG
     //DEBUG
     if vol.num_elements > max_elements{
-      let mesh2 = vol.split((vol.axis + 1) % 3);
+      let new_axis = (axis + 1) % 3;
+      let mesh2 = vol.split(new_axis);
 
-      let child_a = Volume::new(vol.mesh, max_elements, camera_pos);
-      let child_b= Volume::new(mesh2, max_elements, camera_pos);
+      let child_a = Volume::new(vol.mesh, max_elements, camera_pos, new_axis);
+      let child_b= Volume::new(mesh2, max_elements, camera_pos, new_axis);
 
       vol.mesh = Vec::new();
 
@@ -126,9 +123,8 @@ impl Volume{
 
       for t in &self.mesh{
 
-        let curr_depth = Self::distance(&self.camera_pos,
-                              &self.hit_triangle(ray, t).unwrap_or(
-                                [f32::INFINITY, f32::INFINITY, f32::INFINITY]
+        let curr_depth = Self::distance(&self.hit_triangle(ray, t).unwrap_or(
+                                  [f32::INFINITY, f32::INFINITY, f32::INFINITY]
                                 )
                               );
 
@@ -141,8 +137,8 @@ impl Volume{
   }
 
   //pythagoras
-  fn distance(a: &[f32; 3], b: &[f32; 3]) -> f32{
-    f32::sqrt((b[0]-a[0]).powi(2) + (b[1]-a[1]).powi(2) + (b[2]-a[2]).powi(2))
+  fn distance(a: &[f32; 3]) -> f32{
+    f32::sqrt((a[0]).powi(2) + (a[1]).powi(2) + (a[2]).powi(2))
   }
 
   //fast reciprocal
