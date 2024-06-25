@@ -1,6 +1,6 @@
-use std::{fs::File, io::Read, ops::Sub};
+use std::{fs::File, io::Read};
 //use stl_parser::{Mesh, Triangle, Vertex}; copied from this
-use crate::stl_parser_copy::{Mesh, Triangle, Vertex};
+use crate::stl_parser_copy::Mesh;
 
 pub fn stl_to_vec(path: &str) -> Mesh{
   

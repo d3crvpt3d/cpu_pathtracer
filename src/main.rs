@@ -1,7 +1,4 @@
-#![allow(unused)]
-use std::{fmt::format, fs::{File, FileType}, io::{BufReader, Write}, sync::mpsc::channel, thread};
-use indicatif::{ProgressBar, ProgressState, ProgressStyle};
-use core::time;
+use std::{fs::File, io::{BufReader, Write}};
 
 use bvh_tree::BvhTree;
 use raycaster::ray_caster::get_rays;
@@ -68,7 +65,7 @@ fn main() {
   }
 
   eprintln!("Pathtracing..");
-  let mut rays = get_rays::<{PIXELS.0}, {PIXELS.1}>(fov, camera_pos);
+  let mut rays = get_rays::<{PIXELS.0}, {PIXELS.1}>(fov);
 
   rays = raycaster::ray_caster::transform_direction(rays);
 

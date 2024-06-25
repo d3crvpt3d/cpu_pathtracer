@@ -1,5 +1,4 @@
-#![allow(unused)]
-use std::{cmp::{max, min, Ordering}, f32::{INFINITY, NAN}};
+use std::f32::INFINITY;
 
 use crate::stl_parser_copy::{Mesh, Triangle};
 use serde::{Serialize, Deserialize};
@@ -271,17 +270,13 @@ impl Volume{
 
     for t in m {
       for vert in t.vertices {
-        for point in vert {
+          minx = minx.min(vert[0]);
+          miny = miny.min(vert[1]);
+          minz = minz.min(vert[2]);
 
-          minx = minx.min(point);
-          miny = miny.min(point);
-          minz = minz.min(point);
-
-          maxx = maxx.max(point);
-          maxy = maxy.max(point);
-          maxz = maxz.max(point);
-
-        }
+          maxx = maxx.max(vert[0]);
+          maxy = maxy.max(vert[1]);
+          maxz = maxz.max(vert[2]);
       }
     }
 

@@ -1,3 +1,4 @@
+#![allow(unused)]
 use std::{fmt::Write, ops::Sub};
 
 use indicatif::{ProgressBar, ProgressState, ProgressStyle};
