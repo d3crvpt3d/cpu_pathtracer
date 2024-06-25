@@ -95,44 +95,50 @@ impl Volume{
     mesh_2
   }
 
-  pub fn get_first_hit_color(&self, ray: &[f32; 3]) -> Option<[u8; 3]>{//RGBA, closer AABB is the first half, because it "partitiones" it with [<,=,>]
+  pub fn get_first_hit_depth(&self, ray: &[f32; 3]) -> f32{//RGBA, closer AABB is the first half, because it "partitiones" it with [<,=,>]
 
-    let depth = self.hit_box(ray);
-
-    if depth.is_some(){
-      
-      if self.childs.is_some(){//if AABB has childs test them
+    if self.childs.is_some(){//if AABB has childs test them
         
-        let inner = self.childs.as_ref().unwrap().0.get_first_hit_color(ray);
+      let first = self.childs.as_ref().unwrap().0.hit_box(ray);
+      let second = self.childs.as_ref().unwrap().1.hit_box(ray);
 
-        if inner.is_some(){
-          return inner;
-        }else {
-          return self.childs.as_ref().unwrap().1.get_first_hit_color(ray);
-        }
+      let smal;
+      let bigg;
 
-      }else {//AABB is leaf
-        
-        let mut depth: f32 = f32::INFINITY;
-
-        for t in &self.mesh{
-
-          let curr_depth = self.hit_triangle(ray, t);
-
-          if curr_depth.is_some(){//update depth to nearest intersection
-            depth = depth.min(Self::distance(&self.camera_pos, &curr_depth.unwrap()));
-          }
-        }
-
-        if depth != INFINITY{
-          return Some([(255f32 / depth) as u8; 3]);//without falloff: 'Some([0xFFu8; 3])'
-        }
-
-        return None;//DEBUG, real value: Some([0x00u8; 3])
+      if first < second{
+        smal = &self.childs.as_ref().unwrap().0;
+        bigg = &self.childs.as_ref().unwrap().1;
+      }else {
+        smal = &self.childs.as_ref().unwrap().1;
+        bigg = &self.childs.as_ref().unwrap().0;
       }
 
+      let depth = smal.get_first_hit_depth(ray);
+
+      if depth.is_finite(){
+        return depth;
+      }else {
+        return bigg.get_first_hit_depth(ray);
+      }
+
+    }else {//AABB is leaf
+    
+      let mut depth: f32 = f32::INFINITY;
+
+      for t in &self.mesh{
+
+        let curr_depth = Self::distance(&self.camera_pos,
+                              &self.hit_triangle(ray, t).unwrap_or(
+                                [f32::INFINITY, f32::INFINITY, f32::INFINITY]
+                                )
+                              );
+
+        depth = depth.min(curr_depth);
+      }
+
+      return depth;
     }
-    None
+
   }
 
   //pythagoras
@@ -170,7 +176,7 @@ impl Volume{
   }
 
   //credit zacharmarz
-  fn hit_box(&self, ray: &[f32; 3]) -> Option<f32>{
+  pub fn hit_box(&self, ray: &[f32; 3]) -> f32{
 
     let origin = self.camera_pos;
     let aabb = self.bounding_box;
@@ -187,9 +193,9 @@ impl Volume{
     let tmax = f32::min(f32::min(tbigger[0], tbigger[1]), tbigger[2]);
 
     if tmin < tmax{
-      return Some(tmin);
+      return tmin;//yes hit
     }
-    return None;
+    return f32::INFINITY;//no hit
   }
 
   //returns intersection point

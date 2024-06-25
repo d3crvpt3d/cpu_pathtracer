@@ -19,10 +19,18 @@ pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){//
 
     bar.inc(1);
 
-    let k = bvh.root.get_first_hit_color(&rays[y as usize][x as usize]);
+    let groot = &bvh.root;
+
+    let ray = rays[y as usize][x as usize];
+
+    let mut k = groot.hit_box(&ray);
+
+    if k.is_finite(){//if hit get closest triangle intersection
+      k = groot.get_first_hit_depth(&rays[y as usize][x as usize]);
+    };
 		
-		if k.is_some(){
-			*pixel = image::Rgb(k.unwrap());
+		if k.is_finite(){
+			*pixel = image::Rgb([(255f32 / k) as u8; 3]);
 		}else {
 			*pixel = no_color;
 		}
