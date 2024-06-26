@@ -96,3 +96,5 @@ pub fn from_ascii(data: String)->Mesh{
 	
 	vec
 }
+
+//TODO: read binary stl files

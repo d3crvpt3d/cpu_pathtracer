@@ -42,3 +42,38 @@ pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){//
 	
 	img.save_with_format(path, image::ImageFormat::Png).expect("cant write picture");
 }
+
+
+
+#[cfg(test)]
+use image::io::Reader;
+#[cfg(test)]
+use crate::get_rays;
+#[cfg(test)]
+use crate::stl_parser::from_ascii;
+#[cfg(test)]
+use std::fs::File;
+#[cfg(test)]
+use std::io::Read;
+
+//#[test]
+#[cfg(test)]
+#[allow(unused)]
+fn test(){
+
+  let mut buf = String::new();
+
+  File::open("tests/teapot_ascii.stl").unwrap().read_to_string(&mut buf).unwrap();
+
+  let bvh = BvhTree::from_mesh(from_ascii(buf),
+    5, Vec3 { x: 0., y: 1.5, z: -4. });
+
+  let rays = get_rays::<16,9>(90);
+
+  render_and_save(bvh, rays, &"tests/teapot_ascii_test.png".to_string());
+
+  let file_real = Reader::open("tests/teapot_ascii_real.png").unwrap().decode().unwrap();//TODO
+  let file_test = Reader::open("tests/teapot_ascii_test.png").unwrap().decode().unwrap();
+
+  assert_eq!(file_real, file_test);
+}

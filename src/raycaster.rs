@@ -1,3 +1,6 @@
+#[cfg(test)]
+use ray_caster::get_rays;
+
 pub mod ray_caster{
   use std::f32::consts::PI;
 
@@ -8,7 +11,7 @@ pub mod ray_caster{
 
     let a: f32 = f32::tan((fov as f32 / 360f32) * PI);//a = steigung
     let xf = (X-1) as f32;
-    let yf = (X-1) as f32;
+    let yf = (Y-1) as f32;
 
     let mut yvec: Vec<Vec<[f32; 3]>> = Vec::with_capacity(Y);
 
@@ -58,4 +61,16 @@ pub mod ray_caster{
     //TODO
     rays
   }
+}
+
+#[test]
+fn test(){
+  let rays = get_rays::<4,2>(90);
+
+  let mut comp: Vec<Vec<[f32; 3]>> = Vec::new();
+  
+  comp.push(vec![[-1., 1., 1.], [ -0.3333333f32, 1., 1.], [ 0.33333337f32, 1., 1.], [ 1., 1., 1.]]);//y-max
+  comp.push(vec![[-1., -1., 1.], [ -0.3333333f32, -1., 1.], [ 0.33333337f32, -1., 1.], [ 1., -1., 1.]]);//y-min
+
+  assert_eq!(rays, comp);
 }
