@@ -11,7 +11,7 @@ pub mod ray_caster{
 
     //a = steigung
     let ax: f32 = f32::tan((fov as f32 / 360f32) * PI);//a/X*Y/1
-    let ay: f32 = (ax*Y as f32)/X as f32;//a/X*Y/1
+    let ay: f32 = ax*((Y-1) as f32/(X-1) as f32);//a/X*Y/1
 
 
     let xf = (X-1) as f32;
