@@ -73,7 +73,7 @@ fn test(){
 
   let mut buf = String::new();
 
-  File::open("tests/teapot_ascii.stl").unwrap().read_to_string(&mut buf).unwrap();
+  File::open("tests/pyramid_ascii.stl").unwrap().read_to_string(&mut buf).unwrap();
 
   let bvh = BvhTree::from_mesh(from_ascii(buf),
     5, Vec3 { x: 0., y: 1.5, z: -4. });
