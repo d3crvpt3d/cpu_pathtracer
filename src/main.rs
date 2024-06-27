@@ -10,10 +10,14 @@ mod stl_parser;
 
 fn main() {
   
+  //settings
   let fov: usize = 90;
   let camera_pos: Vec3 = Vec3::from_array([0., 1.5, -4.]);
+  let bounces = 2;
   const PIXELS: (usize, usize) = (800, 450);
+  //settings
   
+
   let mut args: Vec<String> = std::env::args().collect();
   
   //argument monads
@@ -37,7 +41,7 @@ fn main() {
   
   rays = raycaster::ray_caster::transform_direction(rays);
   
-  renderer::render_and_save(bvh, rays, &args[2]);
+  renderer::render_and_save(bvh, rays, &args[2], bounces);
   
   println!("Done, saved to {}", args[2]);
 }

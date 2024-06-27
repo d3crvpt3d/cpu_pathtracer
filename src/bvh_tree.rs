@@ -21,7 +21,7 @@ impl BvhTree{
 #[derive(Debug)]
 pub struct Volume{
   max_elements: usize,
-  camera_pos: Vec3,
+  pub camera_pos: Vec3,
   mesh: Vec<Triangle>,
   bounding_box: (Vec3, Vec3),
   num_elements: usize,
@@ -49,17 +49,17 @@ impl Volume{
     
     //DEBUG
     //DEBUG
-    if vol.num_elements > max_elements{
-      let new_axis = (axis + 1) % 3;
-      let mesh2 = vol.split(new_axis);
+    // if vol.num_elements > max_elements{
+    //   let new_axis = (axis + 1) % 3;
+    //   let mesh2 = vol.split(new_axis);
       
-      let child_a = Volume::new(vol.mesh, max_elements, camera_pos, new_axis);
-      let child_b= Volume::new(mesh2, max_elements, camera_pos, new_axis);
+    //   let child_a = Volume::new(vol.mesh, max_elements, camera_pos, new_axis);
+    //   let child_b= Volume::new(mesh2, max_elements, camera_pos, new_axis);
       
-      vol.mesh = Vec::new();
+    //   vol.mesh = Vec::new();
       
-      vol.childs = Some((Box::new(child_a), Box::new(child_b)));
-    }
+    //   vol.childs = Some((Box::new(child_a), Box::new(child_b)));
+    // }
     //DEBUG
     //DEBUG
     
@@ -86,7 +86,7 @@ impl Volume{
     mesh_2
   }
   
-  pub fn get_first_hit_depth(&self, ray: &Vec3) -> f32{//RGBA, closer AABB is the first half, because it "partitiones" it with [<,=,>]
+  pub fn get_first_hit_depth(&self, ray: &Vec3, origin: Vec3) -> f32{//RGBA, closer AABB is the first half, because it "partitiones" it with [<,=,>]
   
     if self.childs.is_some(){//if AABB has childs test them
     
@@ -107,12 +107,12 @@ impl Volume{
         bigg = &self.childs.as_ref().unwrap().0;
       }
     
-      let depth = smal.get_first_hit_depth(ray);
+      let depth = smal.get_first_hit_depth(ray, origin);
     
       if depth.is_finite(){
         return depth;
       }else {
-        return bigg.get_first_hit_depth(ray);
+        return bigg.get_first_hit_depth(ray, origin);
       }
     
     }else {//AABB is leaf
@@ -121,7 +121,7 @@ impl Volume{
     
       for t in &self.mesh{
       
-        let curr_depth = Volume::hit_triangle(self.camera_pos, *ray, *t).distance(self.camera_pos);
+        let curr_depth = Volume::hit_triangle(origin, *ray, *t).distance(origin);
       
         depth = depth.min(curr_depth);
       }

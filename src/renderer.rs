@@ -1,15 +1,15 @@
 use crate::bvh_tree::BvhTree;
-use glam::Vec3;
+use glam::{vec3, Vec3};
 use image;
 use indicatif::ProgressStyle;
 use rayon::prelude::*;
 
-pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){
-  let img = render(bvh, rays);
+pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String, bounces: usize){
+  let img = render(bvh, rays, bounces);
   img.save_with_format(path, image::ImageFormat::Png).expect("cant write picture");
 }
 
-fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>) -> image::RgbImage{// [[px; X]; Y]
+fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize) -> image::RgbImage{// [[px; X]; Y]
 
 	let imgx = rays[0].len();
 	let imgy = rays.len();
@@ -29,17 +29,29 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>) -> image::RgbImage{// [[px; X]
 
     let ray = Vec3::from_array(rays[y as usize][x as usize]);
 
-    let mut k = groot.hit_box(&ray);
+    for _ in 0..(bounces+1){
+      let mut k = groot.hit_box(&ray);
 
-    if k.is_finite(){//if hit get closest triangle intersection
-      k = groot.get_first_hit_depth(&ray);
-    };
+      if k.is_finite(){//if hit get closest triangle intersection
+        k = groot.get_first_hit_depth(&ray, groot.camera_pos);
+      };
 		
-		if k.is_finite(){
-			*pixel = image::Rgb([(255f32 / k) as u8; 3]);
-		}else {
-			*pixel = no_color;
-		}
+		  if k.is_finite(){
+        let origin = groot.camera_pos + (ray.normalize()*k) + vec3(0., f32::EPSILON, 0.);//origin is epsylon over hitted point
+        if groot.get_first_hit_depth(&vec3(0., 1., 0.), origin).is_infinite(){
+          (*pixel).0[0] = (*pixel).0[0].overflowing_add((255f32 * (10f32/k)) as u8).0;
+          (*pixel).0[1] = (*pixel).0[1].overflowing_add((255f32 * (10f32/k)) as u8).0;// 1/dm falloff
+          (*pixel).0[2] = (*pixel).0[2].overflowing_add((255f32 * (10f32/k)) as u8).0;
+        }else{
+          (*pixel).0[0] += 32u8;
+          (*pixel).0[1] += 32u8;//shady area
+          (*pixel).0[2] += 32u8;
+        }
+			  
+		  }else {
+			  *pixel = no_color;
+		  }
+    }
 
   });
   
@@ -68,7 +80,7 @@ fn test(){
 
   let rays = get_rays::<4,2>(90);
 
-  let test = render(bvh, rays);
+  let test = render(bvh, rays, 0);
 
   let real = ImageBuffer::from_vec(4, 2, 
   vec![]
