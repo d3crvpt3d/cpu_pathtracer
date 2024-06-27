@@ -9,7 +9,11 @@ pub mod ray_caster{
   //0→x
   pub fn get_rays<const X: usize, const Y: usize>(fov: usize) -> Vec<Vec<[f32; 3]>>{
 
-    let a: f32 = f32::tan((fov as f32 / 360f32) * PI);//a = steigung
+    //a = steigung
+    let ax: f32 = f32::tan((fov as f32 / 360f32) * PI);//a/X*Y/1
+    let ay: f32 = (ax*Y as f32)/X as f32;//a/X*Y/1
+
+
     let xf = (X-1) as f32;
     let yf = (Y-1) as f32;
 
@@ -23,8 +27,8 @@ pub mod ray_caster{
       let mut xvec: Vec<[f32; 3]> = Vec::with_capacity(X);
 
       for x in 0..X{
-        let x_calc: f32 = a * (((2*x) as f32 / xf) - 1.);
-        let y_calc: f32 = a * (((2*y) as f32 / yf) - 1.);
+        let x_calc: f32 = ax * (((2*x) as f32 / xf) - 1.);
+        let y_calc: f32 = ay * (((2*y) as f32 / yf) - 1.);
 
         xvec.push([x_calc, y_calc, 1.]);
       }
@@ -69,8 +73,16 @@ fn test(){
 
   let mut comp: Vec<Vec<[f32; 3]>> = Vec::new();
   
-  comp.push(vec![[-1., 1., 1.], [ -0.3333333f32, 1., 1.], [ 0.33333337f32, 1., 1.], [ 1., 1., 1.]]);//y-max
-  comp.push(vec![[-1., -1., 1.], [ -0.3333333f32, -1., 1.], [ 0.33333337f32, -1., 1.], [ 1., -1., 1.]]);//y-min
+  //x_fov = 90, y_fov = 45
+  comp.push(vec![ [-1.        , 0.33333337, 1.],
+                  [-0.3333333 , 0.33333337, 1.],
+                  [ 0.33333337, 0.33333337, 1.],
+                  [ 1.        , 0.33333337, 1.]]
+  );//y-max
+  comp.push(vec![ [-1.        , -0.3333333, 1.],
+                  [-0.3333333 , -0.3333333, 1.],
+                  [ 0.33333337, -0.3333333, 1.],
+                  [ 1.        , -0.3333333, 1.]]);//y-min
 
   assert_eq!(rays, comp);
 }

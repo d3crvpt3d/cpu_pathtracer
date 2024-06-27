@@ -30,7 +30,7 @@ fn main() {
   let mesh = object_handler::stl_to_vec(&args[1]);
   
   eprintln!("Creating BVH-Tree from Mesh");
-  let bvh = BvhTree::from_mesh(mesh, 4, camera_pos);//generate BVH tree
+  let bvh = BvhTree::from_mesh(mesh, 10, camera_pos);//generate BVH tree
   
   eprintln!("Pathtracing..");
   let mut rays = get_rays::<{PIXELS.0}, {PIXELS.1}>(fov);

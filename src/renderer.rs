@@ -4,7 +4,12 @@ use image;
 use indicatif::ProgressStyle;
 use rayon::prelude::*;
 
-pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){// [[px; X]; Y]
+pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){
+  let img = render(bvh, rays);
+  img.save_with_format(path, image::ImageFormat::Png).expect("cant write picture");
+}
+
+fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>) -> image::RgbImage{// [[px; X]; Y]
 
 	let imgx = rays[0].len();
 	let imgy = rays.len();
@@ -40,26 +45,19 @@ pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &String){//
   
   bar.finish();
 	
-	img.save_with_format(path, image::ImageFormat::Png).expect("cant write picture");
+	img
 }
 
 
-
-#[cfg(test)]
-use image::io::Reader;
-#[cfg(test)]
-use crate::get_rays;
-#[cfg(test)]
-use crate::stl_parser::from_ascii;
-#[cfg(test)]
-use std::fs::File;
-#[cfg(test)]
-use std::io::Read;
-
-//#[test]
+//#[test] //TODO
 #[cfg(test)]
 #[allow(unused)]
 fn test(){
+  use image::ImageBuffer;
+  use std::{fs::File, io::Read};
+  use crate::stl_parser::from_ascii;
+  use crate::raycaster::ray_caster::get_rays;
+
 
   let mut buf = String::new();
 
@@ -68,12 +66,13 @@ fn test(){
   let bvh = BvhTree::from_mesh(from_ascii(buf),
     5, Vec3 { x: 0., y: 1.5, z: -4. });
 
-  let rays = get_rays::<16,9>(90);
+  let rays = get_rays::<4,2>(90);
 
-  render_and_save(bvh, rays, &"tests/teapot_ascii_test.png".to_string());
+  let test = render(bvh, rays);
 
-  let file_real = Reader::open("tests/teapot_ascii_real.png").unwrap().decode().unwrap();//TODO
-  let file_test = Reader::open("tests/teapot_ascii_test.png").unwrap().decode().unwrap();
+  let real = ImageBuffer::from_vec(4, 2, 
+  vec![]
+).unwrap();
 
-  assert_eq!(file_real, file_test);
+  assert_eq!(real, test);
 }
