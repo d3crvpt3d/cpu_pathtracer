@@ -26,28 +26,42 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize) -> image::RgbI
     bar.inc(1);
 
     let groot = &bvh.root;
+    let ambient = bvh.ambient;
 
-    let ray = Vec3::from_array(rays[y as usize][x as usize]);
+    let mut ray1 = Vec3::from_array(rays[y as usize][x as usize]);
 
-    for _ in 0..(bounces+1){
-      let mut k = groot.hit_box(&ray);
-
-      if k.is_finite(){//if hit get closest triangle intersection
-        k = groot.get_first_hit_depth(&ray, groot.camera_pos);
-      };
+    for bounce in 0..(bounces+1){
+      let box_depth = groot.hit_box(&ray1);
 		
-		  if k.is_finite(){
-        let origin = groot.camera_pos + (ray.normalize()*k) + vec3(0., f32::EPSILON*256., 0.);//origin is epsylon over hitted point
-        if groot.get_first_hit_depth(&vec3(0., 1., 0.), origin).is_infinite(){
-          (*pixel).0[0] = (*pixel).0[0].overflowing_add((255f32) as u8).0;
-          (*pixel).0[1] = (*pixel).0[1].overflowing_add((255f32) as u8).0;//sun area
-          (*pixel).0[2] = (*pixel).0[2].overflowing_add((255f32) as u8).0;
-        }else{
-          (*pixel).0[0] = (*pixel).0[0].overflowing_add((255f32 / (k*k)) as u8).0;
-          (*pixel).0[1] = (*pixel).0[1].overflowing_add((255f32 / (k*k)) as u8).0;//shady area
-          (*pixel).0[2] = (*pixel).0[2].overflowing_add((255f32 / (k*k)) as u8).0;
+      //if ray hit box
+		  if box_depth.is_finite(){
+
+        //get intersection point + triangle
+        let (triangle, hit_point) = groot.get_first_triangle_hit(&ray1, groot.camera_pos);
+
+        //test if hit_point is in sunlight
+        let (_, hit_point2) = groot.get_first_triangle_hit(&vec3(0.5, 1., -0.5), hit_point+(3f32*f32::EPSILON*triangle.normal));//3 epsylon above
+        
+
+        //ambient light * color, if point is in shade
+        if hit_point2.is_finite(){
+
+          (*pixel).0[0] = (*pixel).0[0].overflowing_add((triangle.color[0] * ambient * triangle.falloff.powi(bounce as i32)) as u8).0;
+          (*pixel).0[1] = (*pixel).0[1].overflowing_add((triangle.color[1] * ambient * triangle.falloff.powi(bounce as i32)) as u8).0;
+          (*pixel).0[2] = (*pixel).0[2].overflowing_add((triangle.color[2] * ambient * triangle.falloff.powi(bounce as i32)) as u8).0;
+        
+        }else{//bright light * color, if point is in sunlight; with falloff: '(triangle.color[0] * triangle.falloff.powi(bounce as i32) / (box_depth*box_depth)) as u8'
+
+          (*pixel).0[0] = (*pixel).0[0].overflowing_add((triangle.color[0] * triangle.falloff.powi(bounce as i32)) as u8).0;
+          (*pixel).0[1] = (*pixel).0[1].overflowing_add((triangle.color[1] * triangle.falloff.powi(bounce as i32)) as u8).0;
+          (*pixel).0[2] = (*pixel).0[2].overflowing_add((triangle.color[2] * triangle.falloff.powi(bounce as i32)) as u8).0;
+
         }
+
+        //cast boncing ray //math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector + a bit seperation
+        let new_ray = (ray1-2f32*(ray1.dot(triangle.normal))*triangle.normal) + (3f32*f32::EPSILON*triangle.normal);
 			  
+        ray1 = new_ray;
 		  }else {
 			  *pixel = no_color;
 		  }
@@ -75,8 +89,8 @@ fn test(){
 
   File::open("tests/pyramid_ascii.stl").unwrap().read_to_string(&mut buf).unwrap();
 
-  let bvh = BvhTree::from_mesh(from_ascii(buf),
-    5, Vec3 { x: 0., y: 1.5, z: -4. });
+  let bvh = BvhTree::from_mesh(from_ascii(buf, [127., 127., 255.], 0.9),
+    5, Vec3 { x: 0., y: 1.5, z: -4. }, 0.1,);
 
   let rays = get_rays::<4,2>(90);
 

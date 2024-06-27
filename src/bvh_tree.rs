@@ -4,13 +4,15 @@ use glam::Vec3;
 #[derive(Debug)]
 pub struct BvhTree{
   pub root: Box<Volume>,
+  pub ambient: f32,
 }
 
 impl BvhTree{
   
-  pub fn from_mesh(m: Mesh, max_elements: usize, camera_pos: Vec3) -> Self{
+  pub fn from_mesh(m: Mesh, max_elements: usize, camera_pos: Vec3, ambient_light: f32) -> Self{
     BvhTree{
-      root: Box::new(Volume::new(m, max_elements, camera_pos, 0))
+      root: Box::new(Volume::new(m, max_elements, camera_pos, 0)),
+      ambient: ambient_light,
     }
   }
   
@@ -86,7 +88,7 @@ impl Volume{
     mesh_2
   }
   
-  pub fn get_first_hit_depth(&self, ray: &Vec3, origin: Vec3) -> f32{//RGBA, closer AABB is the first half, because it "partitiones" it with [<,=,>]
+  pub fn get_first_triangle_hit(&self, ray: &Vec3, origin: Vec3) -> (Triangle, Vec3){//RGBA, closer AABB is the first half, because it "partitiones" it with [<,=,>]
   
     if self.childs.is_some(){//if AABB has childs test them
     
@@ -107,26 +109,36 @@ impl Volume{
         bigg = &self.childs.as_ref().unwrap().0;
       }
     
-      let depth = smal.get_first_hit_depth(ray, origin);
+      let (triangle, depth) = smal.get_first_triangle_hit(ray, origin);
     
       if depth.is_finite(){
-        return depth;
+        return (triangle, depth);
       }else {
-        return bigg.get_first_hit_depth(ray, origin);
+        return bigg.get_first_triangle_hit(ray, origin);
       }
     
     }else {//AABB is leaf
     
       let mut depth: f32 = f32::INFINITY;
-    
+      let mut out_hit_point = Vec3::INFINITY;
+      
+      let mut out_t: Triangle = Triangle { a: Vec3::INFINITY, b: Vec3::INFINITY, c: Vec3::INFINITY, normal: Vec3::INFINITY, falloff: 0f32, color: [0.; 3]};
+
       for t in &self.mesh{
       
-        let curr_depth = Volume::hit_triangle(origin, *ray, *t).distance(origin);
+        let (triangle2, hit_point) = Volume::hit_triangle(origin, *ray, *t);
       
-        depth = depth.min(curr_depth);
+        let curr_depth = hit_point.distance(origin);
+
+        if curr_depth < depth{
+          depth = curr_depth;
+          out_hit_point = hit_point;
+          out_t = triangle2;
+        }
+
       }
     
-      return depth;
+      return (out_t, out_hit_point);
     }
   
   }
@@ -150,7 +162,7 @@ impl Volume{
   }
 
 //https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm#Rust_implementation
-pub fn hit_triangle(origin: Vec3, direction: Vec3, triangle: Triangle) -> Vec3 {
+pub fn hit_triangle(origin: Vec3, direction: Vec3, triangle: Triangle) -> (Triangle, Vec3) {
   let e1 = triangle.b - triangle.a;
   let e2 = triangle.c - triangle.a;
   let inf3 = Vec3::INFINITY;
@@ -158,30 +170,30 @@ pub fn hit_triangle(origin: Vec3, direction: Vec3, triangle: Triangle) -> Vec3 {
   let det = e1.dot(ray_cross_e2);
   
   if det > -f32::EPSILON && det < f32::EPSILON {
-    return inf3; // This ray is parallel to this triangle.
+    return (triangle, inf3); // This ray is parallel to this triangle.
   }
   
   let inv_det = 1.0 / det;
   let s = origin - triangle.a;
   let u = inv_det * s.dot(ray_cross_e2);
   if u < 0.0 || u > 1.0 {
-    return inf3;
+    return (triangle, inf3);
   }
   
   let s_cross_e1 = s.cross(e1);
   let v = inv_det * direction.dot(s_cross_e1);
   if v < 0.0 || u + v > 1.0 {
-    return inf3;
+    return (triangle, inf3);
   }
   // At this stage we can compute t to find out where the intersection point is on the line.
   let t = inv_det * e2.dot(s_cross_e1);
   
   if t > f32::EPSILON { // ray intersection
     let intersection_point = origin + direction * t;
-    return intersection_point;
+    return (triangle, intersection_point);
   }
   else { // This means that there is a line intersection but not a ray intersection.
-    return inf3;
+    return (triangle, inf3);
   }
 }
 
