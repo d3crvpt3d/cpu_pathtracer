@@ -37,15 +37,15 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize) -> image::RgbI
       };
 		
 		  if k.is_finite(){
-        let origin = groot.camera_pos + (ray.normalize()*k) + vec3(0., f32::EPSILON, 0.);//origin is epsylon over hitted point
+        let origin = groot.camera_pos + (ray.normalize()*k) + vec3(0., f32::EPSILON*32., 0.);//origin is epsylon over hitted point
         if groot.get_first_hit_depth(&vec3(0., 1., 0.), origin).is_infinite(){
           (*pixel).0[0] = (*pixel).0[0].overflowing_add((255f32 * (10f32/k)) as u8).0;
-          (*pixel).0[1] = (*pixel).0[1].overflowing_add((255f32 * (10f32/k)) as u8).0;// 1/dm falloff
+          (*pixel).0[1] = (*pixel).0[1].overflowing_add((255f32 * (10f32/k)) as u8).0;//sun area
           (*pixel).0[2] = (*pixel).0[2].overflowing_add((255f32 * (10f32/k)) as u8).0;
         }else{
-          (*pixel).0[0] += 32u8;
-          (*pixel).0[1] += 32u8;//shady area
-          (*pixel).0[2] += 32u8;
+          (*pixel).0[0] = (*pixel).0[0].overflowing_add((32f32 * (10f32/k)) as u8).0;
+          (*pixel).0[1] = (*pixel).0[1].overflowing_add((32f32 * (10f32/k)) as u8).0;//shady area
+          (*pixel).0[2] = (*pixel).0[2].overflowing_add((32f32 * (10f32/k)) as u8).0;
         }
 			  
 		  }else {
