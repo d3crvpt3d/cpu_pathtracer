@@ -53,17 +53,17 @@ impl Volume{
     
     //DEBUG
     //DEBUG
-    // if vol.num_elements > max_elements{
-    //   let new_axis = (axis + 1) % 3;
-    //   let mesh2 = vol.split(new_axis);
+    if vol.num_elements > max_elements{
+      let new_axis = (axis + 1) % 3;
+      let mesh2 = vol.split(new_axis);
       
-    //   let child_a = Volume::new(vol.mesh, max_elements, camera_pos, new_axis);
-    //   let child_b= Volume::new(mesh2, max_elements, camera_pos, new_axis);
+      let child_a = Volume::new(vol.mesh, max_elements, camera_pos, new_axis);
+      let child_b= Volume::new(mesh2, max_elements, camera_pos, new_axis);
       
-    //   vol.mesh = Vec::new();
+      vol.mesh = Vec::new();
       
-    //   vol.childs = Some((Box::new(child_a), Box::new(child_b)));
-    // }
+      vol.childs = Some((Box::new(child_a), Box::new(child_b)));
+    }
     //DEBUG
     //DEBUG
     
@@ -91,6 +91,10 @@ impl Volume{
   }
   
   pub fn get_first_triangle_hit(&self, ray: &Vec3, origin: Vec3) -> (Triangle, Vec3){//RGBA, closer AABB is the first half, because it "partitiones" it with [<,=,>]
+
+    if self.mesh.len() == 0{
+      return (Triangle{a: Vec3::INFINITY, b: Vec3::INFINITY, c: Vec3::INFINITY, normal: Vec3::ZERO, reflectiveness: 0., color: [0.; 3]}, Vec3::INFINITY);
+    }
   
     let out_t = &self.mesh[0];
 
