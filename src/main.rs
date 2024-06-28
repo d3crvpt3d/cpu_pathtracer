@@ -14,6 +14,7 @@ fn main() {
   let fov: usize = 90;
   let camera_pos: Vec3 = Vec3::from_array([0., 1.5, -4.]);
   let bounces = 0;
+  let max_elements = 3;
   let color = [255., 32., 255.];
   let reflectiveness = 0.4;
   let ambient_light = 0.1;
@@ -37,7 +38,9 @@ fn main() {
   let mesh = object_handler::stl_to_vec(&args[1], color, reflectiveness);
   
   eprintln!("Creating BVH-Tree from Mesh");
-  let bvh = BvhTree::from_mesh(mesh, 1, camera_pos, ambient_light);//generate BVH tree
+  let bvh = BvhTree::from_mesh(mesh, max_elements, camera_pos, ambient_light);//generate BVH tree
+
+  dbg!(&bvh);//DEBUG
   
   eprintln!("Pathtracing");
   let mut rays = get_rays::<{PIXELS.0}, {PIXELS.1}>(fov);

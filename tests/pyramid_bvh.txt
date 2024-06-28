@@ -1,0 +1,259 @@
+   Compiling cpu_pathtracer v0.1.0 (C:\Users\lyane\OneDrive\Dokumente\github_rust\cpu_pathtracer)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.89s
+     Running `target\debug\cpu_pathtracer.exe tests/pyramid_ascii.stl`
+Output-File not specified, using <storage/traced_picture.png>
+Reading STL-File: tests/pyramid_ascii.stl
+Creating BVH-Tree from Mesh
+[src/main.rs:43:3] &bvh = BvhTree {
+    root: Volume {
+        max_elements: 3,
+        camera_pos: Vec3(
+            0.0,
+            1.5,
+            -4.0,
+        ),
+        mesh: None,
+        bounding_box: (
+            Vec3(
+                -1.0,
+                0.0,
+                -1.0,
+            ),
+            Vec3(
+                1.0,
+                1.0,
+                1.0,
+            ),
+        ),
+        num_elements: 6,
+        axis: 0,
+        childs: Some(
+            (
+                Volume {
+                    max_elements: 3,
+                    camera_pos: Vec3(
+                        0.0,
+                        1.5,
+                        -4.0,
+                    ),
+                    mesh: Some(
+                        [
+                            Triangle {
+                                a: Vec3(
+                                    0.0,
+                                    0.0,
+                                    -1.0,
+                                ),
+                                b: Vec3(
+                                    -1.0,
+                                    0.0,
+                                    0.0,
+                                ),
+                                c: Vec3(
+                                    0.0,
+                                    0.0,
+                                    1.0,
+                                ),
+                                normal: Vec3(
+                                    0.0,
+                                    -1.0,
+                                    0.0,
+                                ),
+                                reflectiveness: 0.4,
+                                color: [
+                                    255.0,
+                                    32.0,
+                                    255.0,
+                                ],
+                            },
+                            Triangle {
+                                a: Vec3(
+                                    0.0,
+                                    0.0,
+                                    -1.0,
+                                ),
+                                b: Vec3(
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                ),
+                                c: Vec3(
+                                    0.0,
+                                    0.0,
+                                    1.0,
+                                ),
+                                normal: Vec3(
+                                    0.0,
+                                    -1.0,
+                                    0.0,
+                                ),
+                                reflectiveness: 0.4,
+                                color: [
+                                    255.0,
+                                    32.0,
+                                    255.0,
+                                ],
+                            },
+                            Triangle {
+                                a: Vec3(
+                                    0.0,
+                                    0.0,
+                                    -1.0,
+                                ),
+                                b: Vec3(
+                                    -1.0,
+                                    0.0,
+                                    0.0,
+                                ),
+                                c: Vec3(
+                                    0.0,
+                                    1.0,
+                                    0.0,
+                                ),
+                                normal: Vec3(
+                                    -1.0,
+                                    1.0,
+                                    -1.0,
+                                ),
+                                reflectiveness: 0.4,
+                                color: [
+                                    255.0,
+                                    32.0,
+                                    255.0,
+                                ],
+                            },
+                        ],
+                    ),
+                    bounding_box: (
+                        Vec3(
+                            -1.0,
+                            0.0,
+                            -1.0,
+                        ),
+                        Vec3(
+                            1.0,
+                            1.0,
+                            1.0,
+                        ),
+                    ),
+                    num_elements: 3,
+                    axis: 1,
+                    childs: None,
+                },
+                Volume {
+                    max_elements: 3,
+                    camera_pos: Vec3(
+                        0.0,
+                        1.5,
+                        -4.0,
+                    ),
+                    mesh: Some(
+                        [
+                            Triangle {
+                                a: Vec3(
+                                    -1.0,
+                                    0.0,
+                                    0.0,
+                                ),
+                                b: Vec3(
+                                    0.0,
+                                    0.0,
+                                    1.0,
+                                ),
+                                c: Vec3(
+                                    0.0,
+                                    1.0,
+                                    0.0,
+                                ),
+                                normal: Vec3(
+                                    -1.0,
+                                    1.0,
+                                    1.0,
+                                ),
+                                reflectiveness: 0.4,
+                                color: [
+                                    255.0,
+                                    32.0,
+                                    255.0,
+                                ],
+                            },
+                            Triangle {
+                                a: Vec3(
+                                    0.0,
+                                    0.0,
+                                    1.0,
+                                ),
+                                b: Vec3(
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                ),
+                                c: Vec3(
+                                    0.0,
+                                    1.0,
+                                    0.0,
+                                ),
+                                normal: Vec3(
+                                    1.0,
+                                    1.0,
+                                    1.0,
+                                ),
+                                reflectiveness: 0.4,
+                                color: [
+                                    255.0,
+                                    32.0,
+                                    255.0,
+                                ],
+                            },
+                            Triangle {
+                                a: Vec3(
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                ),
+                                b: Vec3(
+                                    0.0,
+                                    0.0,
+                                    -1.0,
+                                ),
+                                c: Vec3(
+                                    0.0,
+                                    1.0,
+                                    0.0,
+                                ),
+                                normal: Vec3(
+                                    1.0,
+                                    1.0,
+                                    -1.0,
+                                ),
+                                reflectiveness: 0.4,
+                                color: [
+                                    255.0,
+                                    32.0,
+                                    255.0,
+                                ],
+                            },
+                        ],
+                    ),
+                    bounding_box: (
+                        Vec3(
+                            -1.0,
+                            0.0,
+                            -1.0,
+                        ),
+                        Vec3(
+                            1.0,
+                            1.0,
+                            1.0,
+                        ),
+                    ),
+                    num_elements: 3,
+                    axis: 1,
+                    childs: None,
+                },
+            ),
+        ),
+    },
+    ambient: 0.1,
+}
+Pathtracing

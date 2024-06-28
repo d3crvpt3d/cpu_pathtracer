@@ -26,7 +26,7 @@ impl BvhTree{
 pub struct Volume{
   max_elements: usize,
   pub camera_pos: Vec3,
-  mesh: Vec<Triangle>,
+  mesh: Option<Vec<Triangle>>,
   bounding_box: (Vec3, Vec3),
   num_elements: usize,
   axis: u8,//0: x, 1: y, 2: z (mod 3)
@@ -45,7 +45,7 @@ impl Volume{
       max_elements,
       camera_pos,
       num_elements: m.len(),
-      mesh: m,//Vec<Triangles>
+      mesh: Some(m),//Vec<Triangles>
       bounding_box,
       axis,
       childs: None,
@@ -57,10 +57,10 @@ impl Volume{
       let new_axis = (axis + 1) % 3;
       let mesh2 = vol.split(new_axis);
       
-      let child_a = Volume::new(vol.mesh, max_elements, camera_pos, new_axis);
+      let child_a = Volume::new(vol.mesh.unwrap(), max_elements, camera_pos, new_axis);
       let child_b= Volume::new(mesh2, max_elements, camera_pos, new_axis);
       
-      vol.mesh = Vec::new();
+      vol.mesh = None;
       
       vol.childs = Some((Box::new(child_a), Box::new(child_b)));
     }
@@ -73,18 +73,18 @@ impl Volume{
   //partition triangles, modifies 'mesh' and returns new array
   pub fn split(&mut self, axis: u8) -> Vec<Triangle>{
     
-    let n = self.mesh.len();
+    let n = self.mesh.as_mut().unwrap().len()/2;
     
     //partition at n/2 by averaging current axis <=> (x0+x1+x2/3, y0+y1+y2/3, z0+z1+z2/3)
-    self.mesh.select_nth_unstable_by( n/2,|e1, e2| {
+    self.mesh.as_mut().unwrap().select_nth_unstable_by( n,|e1, e2| {
       
       let uno = (e1.a + e1.b + e1.c) / 3f32;
       let dos = (e2.a + e2.b + e2.c) / 3f32;
       
       uno[axis as usize].partial_cmp(&dos[axis as usize]).expect("some float is NaN")
     });
-    
-    let mesh_2 = self.mesh.split_off(n/2);//[0..n/2)[n/2..len)
+
+    let mesh_2 = self.mesh.as_mut().unwrap().split_off(n);
     
     //return childs
     mesh_2
@@ -92,11 +92,11 @@ impl Volume{
   
   pub fn get_first_triangle_hit(&self, ray: &Vec3, origin: Vec3) -> (Triangle, Vec3){//RGBA, closer AABB is the first half, because it "partitiones" it with [<,=,>]
 
-    if self.mesh.len() == 0{
+    if self.mesh.is_none(){
       return (Triangle{a: Vec3::INFINITY, b: Vec3::INFINITY, c: Vec3::INFINITY, normal: Vec3::ZERO, reflectiveness: 0., color: [0.; 3]}, Vec3::INFINITY);
     }
   
-    let out_t = &self.mesh[0];
+    let out_t = &self.mesh.as_ref().unwrap()[0];
 
     if self.hit_box(ray).is_finite(){
 
@@ -115,11 +115,11 @@ impl Volume{
       }else{//leaf node
         
         //first Triangle
-        let mut best = Volume::hit_triangle(origin, *ray, self.mesh[0]);
+        let mut best = Volume::hit_triangle(origin, *ray, self.mesh.as_ref().unwrap()[0]);
         let mut best_depth = best.1.distance(origin);
 
         //get best triangle by depth
-        for tr in &self.mesh[1..]{
+        for tr in &self.mesh.as_ref().unwrap()[1..]{
           let out = Volume::hit_triangle(origin, *ray, *tr);
           let dstnc = out.1.distance(origin);
           
@@ -151,7 +151,7 @@ impl Volume{
     let tmax = t0.max(t1);
   
     if tmin.max_element() <= tmax.min_element(){
-      return tmin.max_element();//TODO fix?
+      return ray_origin.distance(p.0.min(p.1));//return distance to closest point of aabb
     }else {
       return f32::INFINITY;
     }
@@ -232,7 +232,27 @@ fn hit_box_test(){
 
   let vol = Volume::new(tr_vec, 10, vec3(0., 0.5, -2.), 0);
 
-  let depth = 1.;
+  let depth = 1.5;
 
   assert_eq!(vol.hit_box(&vec3(0., 0., 1.)), depth)
+}
+
+#[test]
+fn split_test(){
+  use crate::stl_parser::from_ascii;
+  use glam::vec3;
+
+  let str = std::fs::read_to_string("tests/pyramid_ascii.stl").unwrap();
+
+  let tr_vec = from_ascii(str, [0.; 3], 0.);
+
+  let vol = Volume::new(tr_vec, 10, vec3(0., 0.5, -2.), 0);
+
+  dbg!(&vol);
+
+  let vol_dbg = format!("{:#?}", &vol);
+
+  let vol_dbg_real = std::fs::read_to_string("tests/vol_dbg_real.txt").unwrap();
+
+  assert_eq!(vol_dbg, vol_dbg_real);
 }

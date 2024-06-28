@@ -58,7 +58,6 @@ pub mod ray_caster{
     //DEBUG
 
     yvec
-    //TODO: use polar coordinates
   }
 
   pub fn transform_direction(rays: Vec<Vec<[f32; 3]>>) -> Vec<Vec<[f32; 3]>>{
