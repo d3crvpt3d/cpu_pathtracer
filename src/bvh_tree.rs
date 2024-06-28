@@ -122,7 +122,7 @@ impl Volume{
       let mut depth: f32 = f32::INFINITY;
       let mut out_hit_point = Vec3::INFINITY;
       
-      let mut out_t: Triangle = Triangle { a: Vec3::INFINITY, b: Vec3::INFINITY, c: Vec3::INFINITY, normal: Vec3::INFINITY, falloff: 0f32, color: [0.; 3]};
+      let mut out_t: Triangle = Triangle { a: Vec3::INFINITY, b: Vec3::INFINITY, c: Vec3::INFINITY, normal: Vec3::INFINITY, reflectiveness: 0f32, color: [0.; 3]};
 
       for t in &self.mesh{
       
@@ -222,4 +222,21 @@ fn get_min_max(m: &Vec<Triangle>) -> (Vec3, Vec3){
   (Vec3::from_array([minx, miny, minz]), Vec3::from_array([maxx, maxy, maxz]))
 }
 
+}
+
+#[test]
+
+fn hit_box_test(){
+  use crate::stl_parser::from_ascii;
+  use glam::vec3;
+
+  let str = std::fs::read_to_string("tests/pyramid_ascii.stl").unwrap();
+
+  let tr_vec = from_ascii(str, [0.; 3], 0.);
+
+  let vol = Volume::new(tr_vec, 10, vec3(0., 0.5, -2.), 0);
+
+  let depth = 1.;
+
+  assert_eq!(vol.hit_box(&vec3(0., 0., 1.)), depth)
 }

@@ -44,15 +44,15 @@ pub mod ray_caster{
     //DEBUG
     //DEBUG
     //DEBUG
-    let mut rays_img = image::RgbImage::new(X as u32, Y as u32);
+    // let mut rays_img = image::RgbImage::new(X as u32, Y as u32);
     
-    for (x, y, pixel) in rays_img.enumerate_pixels_mut(){
-      *pixel = image::Rgb([ (yvec[y as usize][x as usize][0].atan() * 255f32) as u8,
-                            (yvec[y as usize][x as usize][1].atan() * 255f32) as u8,
-                            (yvec[y as usize][x as usize][2].atan() * 255f32) as u8]
-                          );
-    }
-    rays_img.save_with_format("storage/rays_image.png", image::ImageFormat::Png).unwrap();
+    // for (x, y, pixel) in rays_img.enumerate_pixels_mut(){
+    //   *pixel = image::Rgb([ (yvec[y as usize][x as usize][0].atan() * 255f32) as u8,
+    //                         (yvec[y as usize][x as usize][1].atan() * 255f32) as u8,
+    //                         (yvec[y as usize][x as usize][2].atan() * 255f32) as u8]
+    //                       );
+    // }
+    // rays_img.save_with_format("storage/rays_image.png", image::ImageFormat::Png).unwrap();
     //DEBUG
     //DEBUG
     //DEBUG

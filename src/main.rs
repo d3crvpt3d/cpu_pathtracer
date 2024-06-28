@@ -15,8 +15,8 @@ fn main() {
   let camera_pos: Vec3 = Vec3::from_array([0., 1.5, -4.]);
   let bounces = 1;
   let color = [127., 127., 255.];
-  let falloff = 0.4;
-  let ambient_light = 0.3;
+  let reflectiveness = 0.4;
+  let ambient_light = 0.1;
   const PIXELS: (usize, usize) = (80, 45);
   //settings
   
@@ -34,7 +34,7 @@ fn main() {
   }
   
   eprintln!("Reading STL-File: {}", &args[1]);
-  let mesh = object_handler::stl_to_vec(&args[1], color, falloff);
+  let mesh = object_handler::stl_to_vec(&args[1], color, reflectiveness);
   
   eprintln!("Creating BVH-Tree from Mesh");
   let bvh = BvhTree::from_mesh(mesh, 10, camera_pos, ambient_light);//generate BVH tree

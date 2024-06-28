@@ -16,7 +16,7 @@ pub struct Triangle{
 	pub b: Vec3,
 	pub c: Vec3,
 	pub normal: Vec3,
-	pub falloff: f32,
+	pub reflectiveness: f32,
 	pub color: [f32; 3],
 }
 
@@ -29,7 +29,7 @@ impl Add for Triangle{
 			b: self.b + rhs.c,
 			c: self.c + rhs.c,
 			normal: self.normal,
-			falloff: 0f32,
+			reflectiveness: 0f32,
 			color: [0.; 3],
 		}
 	}
@@ -45,7 +45,7 @@ impl Sub for Triangle{
 			b: self.b - rhs.c,
 			c: self.c - rhs.c,
 			normal: self.normal,
-			falloff: 0f32,
+			reflectiveness: 0f32,
 			color: [0.; 3],
 		}
 	}
@@ -61,13 +61,13 @@ impl Mul for Triangle {
 			b: self.b * rhs.c,
 			c: self.c * rhs.c,
 			normal: self.normal,
-			falloff: 0f32,
+			reflectiveness: 0f32,
 			color: [0.; 3],
 		}
 	}	
 }
 
-pub fn from_ascii(data: String, color: [f32; 3], falloff: f32)->Mesh{
+pub fn from_ascii(data: String, color: [f32; 3], reflectiveness: f32)->Mesh{
 	
 	let mut vec: Vec<Triangle> = Vec::with_capacity(64);
 	let iterator: Vec<&str> = data.par_split_whitespace().collect();
@@ -78,7 +78,7 @@ pub fn from_ascii(data: String, color: [f32; 3], falloff: f32)->Mesh{
 	.with_key("eta", |state: &ProgressState, w: &mut dyn Write| write!(w, "{:.1}s", state.eta().as_secs_f64()).unwrap())
 	.progress_chars("=>-"));
 	
-	let zerot = Triangle{a: Vec3::ZERO, b: Vec3::ZERO, c: Vec3::ZERO, normal: Vec3::ZERO, falloff, color};
+	let zerot = Triangle{a: Vec3::ZERO, b: Vec3::ZERO, c: Vec3::ZERO, normal: Vec3::ZERO, reflectiveness, color};
 	let mut t: Triangle = zerot.clone();
 	let mut v_it = 0;
 	
