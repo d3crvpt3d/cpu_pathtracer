@@ -1,5 +1,7 @@
+use std::f32::INFINITY;
+
 use crate::stl_parser::{Mesh, Triangle};
-use glam::Vec3;
+use glam::{vec3, Vec3};
 
 #[derive(Debug)]
 pub struct BvhTree{
@@ -90,55 +92,45 @@ impl Volume{
   
   pub fn get_first_triangle_hit(&self, ray: &Vec3, origin: Vec3) -> (Triangle, Vec3){//RGBA, closer AABB is the first half, because it "partitiones" it with [<,=,>]
   
-    if self.childs.is_some(){//if AABB has childs test them
-    
-      let aabb0 = self.childs.as_ref().unwrap().0.bounding_box;
-      let aabb1 = self.childs.as_ref().unwrap().1.bounding_box;
-    
-      let first = self.hit_box(ray);
-      let second = self.hit_box(ray);
-    
-      let smal;
-      let bigg;
-    
-      if first < second{
-        smal = &self.childs.as_ref().unwrap().0;
-        bigg = &self.childs.as_ref().unwrap().1;
-      }else {
-        smal = &self.childs.as_ref().unwrap().1;
-        bigg = &self.childs.as_ref().unwrap().0;
-      }
-    
-      let (triangle, depth) = smal.get_first_triangle_hit(ray, origin);
-    
-      if depth.is_finite(){
-        return (triangle, depth);
-      }else {
-        return bigg.get_first_triangle_hit(ray, origin);
-      }
-    
-    }else {//AABB is leaf
-    
-      let mut depth: f32 = f32::INFINITY;
-      let mut out_hit_point = Vec3::INFINITY;
-      
-      let mut out_t: Triangle = Triangle { a: Vec3::INFINITY, b: Vec3::INFINITY, c: Vec3::INFINITY, normal: Vec3::INFINITY, reflectiveness: 0f32, color: [0.; 3]};
+    let out_t = &self.mesh[0];
 
-      for t in &self.mesh{
-      
-        let (triangle2, hit_point) = Volume::hit_triangle(origin, *ray, *t);
-      
-        let curr_depth = hit_point.distance(origin);
+    if self.hit_box(ray).is_finite(){
 
-        if curr_depth < depth{
-          depth = curr_depth;
-          out_hit_point = hit_point;
-          out_t = triangle2;
+      if self.childs.is_some(){
+        
+        //return recursive of nearer child
+        let a = &self.childs.as_ref().unwrap().0;
+        let b = &self.childs.as_ref().unwrap().1;
+
+        if a.hit_box(ray).lt(&b.hit_box(ray)){
+          return a.get_first_triangle_hit(ray, origin);
+        }else{
+          return b.get_first_triangle_hit(ray, origin);
         }
 
+      }else{//leaf node
+        
+        //first Triangle
+        let mut best = Volume::hit_triangle(origin, *ray, self.mesh[0]);
+        let mut best_depth = best.1.distance(origin);
+
+        //get best triangle by depth
+        for tr in &self.mesh[1..]{
+          let out = Volume::hit_triangle(origin, *ray, *tr);
+          let dstnc = out.1.distance(origin);
+          
+          if dstnc < best_depth{
+            best_depth = dstnc;
+            best = out;
+          }
+
+        }
+
+        return best;
       }
-    
-      return (out_t, out_hit_point);
+
+    }else{
+      return (*out_t, vec3(INFINITY, INFINITY, INFINITY));
     }
   
   }
