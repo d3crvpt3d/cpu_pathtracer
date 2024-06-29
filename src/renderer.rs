@@ -1,4 +1,6 @@
-use crate::bvh_tree::BvhTree;
+use std::f32::EPSILON;
+
+use crate::bvh_tree::{BvhTree, Volume};
 use glam::{vec3, Vec3};
 use image;
 use indicatif::ProgressStyle;
@@ -23,59 +25,17 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize) -> image::RgbI
   let bar = indicatif::ProgressBar::new((imgx*imgy) as u64);
   bar.set_style(ProgressStyle::with_template("{wide_bar:.green/blue} {eta}").unwrap().progress_chars("=>-"));
 
+  //trace rays
 	img.par_enumerate_pixels_mut().for_each(|(x, y, pixel)| {
 
     bar.inc(1);
+    let ray = Vec3::from_array(rays[y as usize][x as usize]);
 
-    let groot = &bvh.root;
-    let ambient = bvh.ambient;
+    let traced_color: [f32; 3] = trace(&bvh.root, bvh.ambient, &ray, bounces, &bvh.root.camera_pos);
 
-    let mut ray1 = Vec3::from_array(rays[y as usize][x as usize]);
-    let mut intensity = 1f32;
-
-    for _ in 0..(bounces+1){
-      let box_depth = groot.hit_box(&ray1);
-		
-      //if ray hit box
-		  if box_depth.is_finite(){
-
-        //get intersection point + triangle
-        let (triangle, hit_point) = groot.get_first_triangle_hit(&ray1, groot.camera_pos);
-
-        if groot.camera_pos.distance(hit_point).is_finite(){
-          //test if hit_point is in sunlight
-          let (_, hit_point2) = groot.get_first_triangle_hit(&sun_dir, hit_point+(triangle.normal*0.0001));//3 epsylon above
-        
-
-          //ambient light * color, if point is in shade
-          if hit_point2.is_finite(){
-
-            (*pixel).0[0] = (*pixel).0[0].saturating_add((triangle.color[0] * intensity * ambient) as u8);
-            (*pixel).0[1] = (*pixel).0[1].saturating_add((triangle.color[1] * intensity * ambient) as u8);
-            (*pixel).0[2] = (*pixel).0[2].saturating_add((triangle.color[2] * intensity * ambient) as u8);
-        
-            }else{//bright light * color, if point is in sunlight; with reflectiveness: '(triangle.color[0] * triangle.reflectiveness.powi(bounce as i32) / (box_depth*box_depth)) as u8'
-
-            (*pixel).0[0] = (*pixel).0[0].saturating_add((triangle.color[0] * intensity) as u8);
-            (*pixel).0[1] = (*pixel).0[1].saturating_add((triangle.color[1] * intensity) as u8);
-            (*pixel).0[2] = (*pixel).0[2].saturating_add((triangle.color[2] * intensity) as u8);
-
-          }
-
-          //cast boncing ray //math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector + a bit seperation
-          let new_ray = (ray1-2f32*(ray1.dot(triangle.normal))*triangle.normal) + (3f32*f32::EPSILON*triangle.normal);
-			  
-          intensity *= triangle.reflectiveness;
-          ray1 = new_ray;
-        
-        }else {
-          *pixel = no_color;
-        }
-
-		  }else {
-			  *pixel = no_color;
-		  }
-    }
+    (*pixel).0[0] = traced_color[0] as u8;
+    (*pixel).0[1] = traced_color[1] as u8;
+    (*pixel).0[2] = traced_color[2] as u8;
 
   });
   
@@ -83,6 +43,46 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize) -> image::RgbI
 	
 	img
 }
+
+
+//trace recusively path of ray and add with weight the resulting colors bottom up
+fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3) -> [f32; 3]{
+
+  //abbruchbedingung
+  if bounces == 0{
+    return [0f32; 3];
+  }
+
+  let (triangle, _) = vol.get_first_triangle_hit(ray, *origin);
+
+  let ray_reflected = *ray - 2f32 * triangle.normal * (ray.dot(triangle.normal)) + triangle.normal * EPSILON;
+
+  let color_reflected = trace(vol, ambient, &ray_reflected, bounces, origin);
+
+  let col: [f32; 3];
+
+  if hit_light() == 0.0{
+    col = [
+      (1f32 - triangle.reflectiveness) * triangle.color[0] + triangle.reflectiveness * color_reflected[0] * ambient,
+      (1f32 - triangle.reflectiveness) * triangle.color[1] + triangle.reflectiveness * color_reflected[1] * ambient,
+      (1f32 - triangle.reflectiveness) * triangle.color[2] + triangle.reflectiveness * color_reflected[2] * ambient
+    ];
+  }else{//multiply by light strength
+    col = [
+      (1f32 - triangle.reflectiveness) * triangle.color[0] + triangle.reflectiveness * color_reflected[0],
+      (1f32 - triangle.reflectiveness) * triangle.color[1] + triangle.reflectiveness * color_reflected[1],
+      (1f32 - triangle.reflectiveness) * triangle.color[2] + triangle.reflectiveness * color_reflected[2]
+    ];
+  }
+
+  return col;
+}
+
+//TODO: go trough light vec and summarize the different intensitys if visible from hit_point
+fn hit_light() -> f32{
+  return 1.;
+}
+
 
 
 //#[test] //TODO

@@ -16,7 +16,7 @@ fn main() {
   let bounces = 0;
   let max_elements = 3;
   let color = [255., 32., 255.];
-  let reflectiveness = 0.4;
+  let reflectiveness = 0.2;
   let ambient_light = 0.1;
   const PIXELS: (usize, usize) = (800, 450);
   //settings
