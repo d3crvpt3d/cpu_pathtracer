@@ -248,8 +248,6 @@ fn split_test(){
 
   let vol = Volume::new(tr_vec, 10, vec3(0., 0.5, -2.), 0);
 
-  dbg!(&vol);
-
   let vol_dbg = format!("{:#?}", &vol);
 
   let vol_dbg_real = std::fs::read_to_string("tests/vol_dbg_real.txt").unwrap();

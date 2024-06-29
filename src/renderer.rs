@@ -18,8 +18,6 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize) -> image::RgbI
 	let imgx = rays[0].len();
 	let imgy = rays.len();
 
-	let no_color = image::Rgb([0x00u8; 3]);
-		
 	let mut img = image::RgbImage::new( imgx as u32, imgy as u32);
 
   let bar = indicatif::ProgressBar::new((imgx*imgy) as u64);
@@ -31,7 +29,7 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize) -> image::RgbI
     bar.inc(1);
     let ray = Vec3::from_array(rays[y as usize][x as usize]);
 
-    let traced_color: [f32; 3] = trace(&bvh.root, bvh.ambient, &ray, bounces, &bvh.root.camera_pos);
+    let traced_color: [f32; 3] = trace(&bvh.root, bvh.ambient, &ray, bounces+1, &bvh.root.camera_pos, &sun_dir);
 
     (*pixel).0[0] = traced_color[0] as u8;
     (*pixel).0[1] = traced_color[1] as u8;
@@ -46,7 +44,7 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize) -> image::RgbI
 
 
 //trace recusively path of ray and add with weight the resulting colors bottom up
-fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3) -> [f32; 3]{
+fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3, sun_dir: &Vec3) -> [f32; 3]{
 
   //abbruchbedingung
   if bounces == 0{
@@ -57,11 +55,11 @@ fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3) 
 
   let ray_reflected = *ray - 2f32 * triangle.normal * (ray.dot(triangle.normal)) + triangle.normal * EPSILON;
 
-  let color_reflected = trace(vol, ambient, &ray_reflected, bounces, origin);
+  let color_reflected = trace(vol, ambient, &ray_reflected, bounces-1, origin, sun_dir);
 
   let col: [f32; 3];
 
-  if hit_light() == 0.0{
+  if hit_light(ray, sun_dir, vol) == 0.0{
     col = [
       (1f32 - triangle.reflectiveness) * triangle.color[0] + triangle.reflectiveness * color_reflected[0] * ambient,
       (1f32 - triangle.reflectiveness) * triangle.color[1] + triangle.reflectiveness * color_reflected[1] * ambient,
@@ -79,7 +77,7 @@ fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3) 
 }
 
 //TODO: go trough light vec and summarize the different intensitys if visible from hit_point
-fn hit_light() -> f32{
+fn hit_light(ray: &Vec3, sun_dir: &Vec3, vol: &Volume) -> f32{
   return 1.;
 }
 

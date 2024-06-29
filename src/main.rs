@@ -39,8 +39,6 @@ fn main() {
   
   eprintln!("Creating BVH-Tree from Mesh");
   let bvh = BvhTree::from_mesh(mesh, max_elements, camera_pos, ambient_light);//generate BVH tree
-
-  dbg!(&bvh);//DEBUG
   
   eprintln!("Pathtracing");
   let mut rays = get_rays::<{PIXELS.0}, {PIXELS.1}>(fov);
