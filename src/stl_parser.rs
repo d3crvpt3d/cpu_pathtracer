@@ -86,7 +86,7 @@ pub fn from_ascii(data: String, color: [f32; 3], reflectiveness: f32)->Mesh{
 		
 		if word == "facet" {
 
-			t.normal = vec3(iterator[it+2].parse::<f32>().unwrap(), iterator[it+3].parse::<f32>().unwrap(), iterator[it+4].parse::<f32>().unwrap());
+			t.normal = vec3(iterator[it+2].parse::<f32>().unwrap(), iterator[it+3].parse::<f32>().unwrap(), iterator[it+4].parse::<f32>().unwrap()).normalize();
 
 			t.a = vec3(iterator[it+8].parse::<f32>().unwrap(), iterator[it+9].parse::<f32>().unwrap(), iterator[it+10].parse::<f32>().unwrap());
 			t.b = vec3(iterator[it+12].parse::<f32>().unwrap(), iterator[it+13].parse::<f32>().unwrap(), iterator[it+14].parse::<f32>().unwrap());

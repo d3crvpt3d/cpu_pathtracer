@@ -24,9 +24,9 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize) -> image::RgbI
   bar.set_style(ProgressStyle::with_template("{wide_bar:.green/blue} {eta}").unwrap().progress_chars("=>-"));
 
   //trace rays
-	img.par_enumerate_pixels_mut().for_each(|(x, y, pixel)| {
-
+	img.par_enumerate_pixels_mut().for_each(|(x, y, pixel)| {//iter through pixels
     bar.inc(1);
+
     let ray = Vec3::from_array(rays[y as usize][x as usize]);
 
     let traced_color: [f32; 3] = trace(&bvh.root, bvh.ambient, &ray, bounces+1, &bvh.root.camera_pos, &sun_dir);
@@ -35,7 +35,7 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize) -> image::RgbI
     (*pixel).0[1] = traced_color[1] as u8;
     (*pixel).0[2] = traced_color[2] as u8;
 
-  });
+  });//iter through pixels end
   
   bar.finish();
 	
@@ -51,15 +51,15 @@ fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3, 
     return [0f32; 3];
   }
 
-  let (triangle, _) = vol.get_first_triangle_hit(ray, *origin);
+  let (triangle, hit1) = vol.get_first_triangle_hit(ray, *origin);
 
-  let ray_reflected = *ray - 2f32 * triangle.normal * (ray.dot(triangle.normal)) + triangle.normal * EPSILON;
+  let ray_reflected = *ray - 2f32 * triangle.normal * (ray.dot(triangle.normal));
 
-  let color_reflected = trace(vol, ambient, &ray_reflected, bounces-1, origin, sun_dir);
+  let color_reflected = trace(vol, ambient, &ray_reflected, bounces-1, &(hit1 + EPSILON * triangle.normal), sun_dir);
 
   let col: [f32; 3];
 
-  if hit_light(ray, sun_dir, vol) == 0.0{
+  if hit_light(ray, sun_dir, vol) == 0.{
     col = [
       (1f32 - triangle.reflectiveness) * triangle.color[0] + triangle.reflectiveness * color_reflected[0] * ambient,
       (1f32 - triangle.reflectiveness) * triangle.color[1] + triangle.reflectiveness * color_reflected[1] * ambient,

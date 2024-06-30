@@ -12,9 +12,9 @@ fn main() {
   
   //settings
   let fov: usize = 90;
-  let camera_pos: Vec3 = Vec3::from_array([0., 1.5, -4.]);
+  let camera_pos: Vec3 = Vec3::from_array([0., 1.5, -3.]);
   let bounces = 0;
-  let max_elements = 3;
+  let max_elements = 10;
   let color = [255., 32., 255.];
   let reflectiveness = 0.2;
   let ambient_light = 0.1;
