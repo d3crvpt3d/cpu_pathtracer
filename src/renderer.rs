@@ -53,6 +53,11 @@ fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3, 
 
   let (triangle, hit1) = vol.get_first_triangle_hit(ray, *origin);
 
+  //if no hit
+  if !hit1.is_finite(){
+    return [0f32; 3];
+  }
+
   let ray_reflected = *ray - 2f32 * triangle.normal * (ray.dot(triangle.normal));
 
   let color_reflected = trace(vol, ambient, &ray_reflected, bounces-1, &(hit1 + EPSILON * triangle.normal), sun_dir);
