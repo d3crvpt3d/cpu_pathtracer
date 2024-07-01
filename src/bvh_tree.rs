@@ -135,10 +135,18 @@ impl Volume{
   
   }
 
-  //https://jcgt.org/published/0007/03/04/ //TODO: change to work when origin is in cube
+  //https://jcgt.org/published/0007/03/04/
   pub fn hit_box(&self, ray: &Vec3, ray_origin: Vec3) -> f32{
+
     let p = self.bounding_box;
     
+    //check if origin is inside the cube
+    if  p.0.x <= ray_origin.x && ray_origin.x <= p.1.x &&
+        p.0.y <= ray_origin.y && ray_origin.y <= p.1.y &&
+        p.0.z <= ray_origin.z && ray_origin.z <= p.1.z {
+      return 0.;
+    }
+
     let inv_d = ray.recip();
     let t0 = (p.0 - ray_origin) * inv_d;
     let t1 = (p.1 - ray_origin) * inv_d;

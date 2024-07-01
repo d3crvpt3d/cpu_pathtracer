@@ -14,11 +14,11 @@ fn main() {
   let fov: usize = 90;
   let camera_pos: Vec3 = Vec3::from_array([-0.5, 1.5, -4.]);
   let bounces = 1;
-  let max_elements = 20000;//default: 10
+  let max_elements = 10;
   let color = [255., 32., 255.];
   let reflectiveness = 0.2;
   let ambient_light = 0.1;
-  const PIXELS: (usize, usize) = (2160, 1440);
+  const PIXELS: (usize, usize) = (800, 450);
   //settings
   
 
