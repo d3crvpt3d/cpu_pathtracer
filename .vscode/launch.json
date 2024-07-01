@@ -6,7 +6,7 @@
           "type": "cppvsdbg",
           "request": "launch",
           "program": "${workspaceRoot}/target/debug/cpu_pathtracer.exe",
-          "args": ["tests/cup_ascii.stl"],
+          "args": ["tests/pyramid_ascii.stl"],
           "stopAtEntry": false,
           "cwd": "${workspaceRoot}",
           "environment": [],

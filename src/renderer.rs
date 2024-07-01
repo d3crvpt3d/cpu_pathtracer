@@ -1,5 +1,3 @@
-use std::f32::EPSILON;
-
 use crate::bvh_tree::{BvhTree, Volume};
 use glam::{vec3, Vec3};
 use image;
@@ -24,7 +22,7 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize) -> image::RgbI
   bar.set_style(ProgressStyle::with_template("{wide_bar:.green/blue} {eta}").unwrap().progress_chars("=>-"));
 
   //trace rays
-	img.enumerate_pixels_mut().for_each(|(x, y, pixel)| {//iter through pixels with par_iter
+	img.par_enumerate_pixels_mut().for_each(|(x, y, pixel)| {//iter through pixels with par_iter
     bar.inc(1);
 
     let ray = Vec3::from_array(rays[y as usize][x as usize]);

@@ -13,7 +13,7 @@ impl BvhTree{
   
   pub fn from_mesh(m: Mesh, max_elements: usize, camera_pos: Vec3, ambient_light: f32) -> Self{
     let b = Box::new(Volume::new(m, max_elements, camera_pos, 0));
-    println!("Dimensions P1:{} P2:{}, mid: {}",&b.bounding_box.0, &b.bounding_box.1, &(b.bounding_box.1 - b.bounding_box.0));
+    println!("Dimensions P1:{} P2:{}, mid: {}",&b.bounding_box.0, &b.bounding_box.1, &((b.bounding_box.1 + b.bounding_box.0) / 2.));
     BvhTree{
       root: b,
       ambient: ambient_light,
@@ -94,15 +94,15 @@ impl Volume{
   
   pub fn get_first_triangle_hit(&self, ray: &Vec3, origin: Vec3) -> (Triangle, Vec3){//RGBA, closer AABB is the first half, because it "partitiones" it with [<,=,>]
 
-    if self.hit_box(ray).is_finite(){
-
+    if self.hit_box(ray, origin).is_finite(){
+      
       if self.childs.is_some(){
         
         //return recursive of nearer child
         let a = &self.childs.as_ref().unwrap().0;
         let b = &self.childs.as_ref().unwrap().1;
 
-        if a.hit_box(ray).lt(&b.hit_box(ray)){
+        if a.hit_box(ray, origin).lt(&b.hit_box(ray, origin)){
           return a.get_first_triangle_hit(ray, origin);
         }else{
           return b.get_first_triangle_hit(ray, origin);
@@ -135,19 +135,19 @@ impl Volume{
   
   }
 
-  //https://www.jcgt.org/published/0007/03/04/paper-lowres.pdf
-  pub fn hit_box(&self, ray: &Vec3) -> f32{
+  //https://jcgt.org/published/0007/03/04/
+  pub fn hit_box(&self, ray: &Vec3, ray_origin: Vec3) -> f32{
     let p = self.bounding_box;
-    let ray_origin = self.camera_pos;
-    let inv_raydir = ray.recip();
+    
+    let inv_d = ray.recip();
+    let t0 = (p.0 - ray_origin) * inv_d;
+    let t1 = (p.1 - ray_origin) * inv_d;
 
-    let t0 = (p.0 - ray_origin) * inv_raydir;
-    let t1 = (p.1 - ray_origin) * inv_raydir;
     let tmin = t0.min(t1);
     let tmax = t0.max(t1);
-  
+    
     if tmin.max_element() <= tmax.min_element(){
-      return ray_origin.distance(p.0.min(p.1));//return distance to closest point of aabb
+      return tmin.distance(vec3(0., 0., 0.));//return distance to closest point of aabb
     }else {
       return f32::INFINITY;
     }
@@ -230,7 +230,7 @@ fn hit_box_test(){
 
   let depth = 1.5;
 
-  assert_eq!(vol.hit_box(&vec3(0., 0., 1.)), depth)
+  assert_eq!(vol.hit_box(&vec3(0., 0., 1.), vec3(0., 0., 0.)), depth)
 }
 
 #[test]
