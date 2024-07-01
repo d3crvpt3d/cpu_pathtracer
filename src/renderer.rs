@@ -24,7 +24,7 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize) -> image::RgbI
   bar.set_style(ProgressStyle::with_template("{wide_bar:.green/blue} {eta}").unwrap().progress_chars("=>-"));
 
   //trace rays
-	img.par_enumerate_pixels_mut().for_each(|(x, y, pixel)| {//iter through pixels
+	img.enumerate_pixels_mut().for_each(|(x, y, pixel)| {//iter through pixels with par_iter
     bar.inc(1);
 
     let ray = Vec3::from_array(rays[y as usize][x as usize]);
@@ -60,7 +60,7 @@ fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3, 
 
   let ray_reflected = *ray - 2f32 * triangle.normal * (ray.dot(triangle.normal));
 
-  let color_reflected = trace(vol, ambient, &ray_reflected, bounces-1, &(hit1 + EPSILON * triangle.normal), sun_dir);
+  let color_reflected = trace(vol, ambient, &ray_reflected, bounces-1, &(hit1 + 1.0e-5 * triangle.normal), sun_dir);
 
   let col: [f32; 3];
 

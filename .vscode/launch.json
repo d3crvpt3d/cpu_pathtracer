@@ -6,11 +6,11 @@
           "type": "cppvsdbg",
           "request": "launch",
           "program": "${workspaceRoot}/target/debug/cpu_pathtracer.exe",
-          "args": ["tests/pyramid_ascii.stl"],
+          "args": ["tests/cup_ascii.stl"],
           "stopAtEntry": false,
           "cwd": "${workspaceRoot}",
           "environment": [],
-          "console": "externalTerminal"
+          "console": "internalConsole"
       }
   ]
 }

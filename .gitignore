@@ -1,3 +1,4 @@
 /target
 *.bvh
 *.msh
+.vscode

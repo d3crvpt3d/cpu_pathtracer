@@ -12,8 +12,10 @@ pub struct BvhTree{
 impl BvhTree{
   
   pub fn from_mesh(m: Mesh, max_elements: usize, camera_pos: Vec3, ambient_light: f32) -> Self{
+    let b = Box::new(Volume::new(m, max_elements, camera_pos, 0));
+    println!("Dimensions P1:{} P2:{}, mid: {}",&b.bounding_box.0, &b.bounding_box.1, &(b.bounding_box.1 - b.bounding_box.0));
     BvhTree{
-      root: Box::new(Volume::new(m, max_elements, camera_pos, 0)),
+      root: b,
       ambient: ambient_light,
     }
   }
