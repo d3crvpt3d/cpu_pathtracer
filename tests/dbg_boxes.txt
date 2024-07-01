@@ -1,37 +1,144 @@
-   Compiling cpu_pathtracer v0.1.0 (C:\Users\lyane\OneDrive\Dokumente\github_rust\cpu_pathtracer)
-warning: unused import: `rayon::prelude`
- --> src\renderer.rs:5:5
-  |
-5 | use rayon::prelude::*;
-  |     ^^^^^^^^^^^^^^
-  |
-  = note: `#[warn(unused_imports)]` on by default
-
-warning: unused variable: `ray`
-  --> src\renderer.rs:83:14
-   |
-83 | fn hit_light(ray: &Vec3, sun_dir: &Vec3, vol: &Volume) -> f32{
-   |              ^^^ help: if this is intentional, prefix it with an underscore: `_ray`
-   |
-   = note: `#[warn(unused_variables)]` on by default
-
-warning: unused variable: `sun_dir`
-  --> src\renderer.rs:83:26
-   |
-83 | fn hit_light(ray: &Vec3, sun_dir: &Vec3, vol: &Volume) -> f32{
-   |                          ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_sun_dir`
-
-warning: unused variable: `vol`
-  --> src\renderer.rs:83:42
-   |
-83 | fn hit_light(ray: &Vec3, sun_dir: &Vec3, vol: &Volume) -> f32{
-   |                                          ^^^ help: if this is intentional, prefix it with an underscore: `_vol`
-
-warning: `cpu_pathtracer` (bin "cpu_pathtracer") generated 4 warnings
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.46s
-     Running `target\debug\cpu_pathtracer.exe tests/pyramid_ascii.stl`
-Output-File not specified, using <storage/traced_picture.png>
-Reading STL-File: tests/pyramid_ascii.stl
-Creating BVH-Tree from Mesh
-Pathtracing
-......................................................................................##############...........##.##############...........##.##.##.######......................
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [1, 0, 0], [0, 0, -1], [0, 1, 0]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [-1, 0, 0], [0, 0, 1], [0, 1, 0]
+Triangle: [1, 0, 0], [0, 0, -1], [0, 1, 0]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [1, 0, 0], [0, 0, -1], [0, 1, 0]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [-1, 0, 0], [0, 0, 1], [0, 1, 0]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [1, 0, 0], [0, 0, -1], [0, 1, 0]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [1, 0, 0], [0, 0, -1], [0, 1, 0]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [-1, 0, 0], [0, 0, 1], [0, 1, 0]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [1, 0, 0], [0, 0, -1], [0, 1, 0]
+Triangle: [-1, 0, 0], [0, 0, 1], [0, 1, 0]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [1, 0, 0], [0, 0, -1], [0, 1, 0]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [inf, inf, inf], [inf, inf, inf], [inf, inf, inf]
+Triangle: [1, 0, 0], [0, 0, -1], [0, 1, 0]

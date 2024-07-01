@@ -25,7 +25,7 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize) -> image::RgbI
 	img.par_enumerate_pixels_mut().for_each(|(x, y, pixel)| {//iter through pixels with par_iter
     bar.inc(1);
 
-    let ray = Vec3::from_array(rays[y as usize][x as usize]);
+    let ray = Vec3::from_array(rays[y as usize][x as usize]).normalize();
 
     let traced_color: [f32; 3] = trace(&bvh.root, bvh.ambient, &ray, bounces+1, &bvh.root.camera_pos, &sun_dir);
 
@@ -43,7 +43,7 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize) -> image::RgbI
 
 //trace recusively path of ray and add with weight the resulting colors bottom up
 fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3, sun_dir: &Vec3) -> [f32; 3]{
-
+  
   //abbruchbedingung
   if bounces == 0{
     return [0f32; 3];
@@ -55,6 +55,7 @@ fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3, 
   if !hit1.is_finite(){
     return [0f32; 3];
   }
+
 
   let ray_reflected = *ray - 2f32 * triangle.normal * (ray.dot(triangle.normal));
 
