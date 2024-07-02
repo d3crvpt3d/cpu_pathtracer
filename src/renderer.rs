@@ -102,7 +102,7 @@ fn test(){
 
   File::open("tests/pyramid_ascii.stl").unwrap().read_to_string(&mut buf).unwrap();
 
-  let bvh = BvhTree::from_mesh(from_ascii(buf, [127., 127., 255.], 0.9).unwrap(),
+  let bvh = BvhTree::from_mesh(from_ascii(&buf, [127., 127., 255.], 0.9).unwrap(),
     5, Vec3 { x: 0., y: 1.5, z: -4. }, 0.1,);
 
   let rays = get_rays::<4,2>(90);
