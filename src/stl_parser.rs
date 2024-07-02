@@ -18,14 +18,6 @@ pub struct Triangle{
 	pub color: [f32; 3],
 }
 
-impl Triangle {
-		
-	pub fn grey() -> Self{
-		Triangle { a: Vec3::INFINITY, b: Vec3::INFINITY, c: Vec3::INFINITY, normal: Vec3::INFINITY, reflectiveness: 0., color: [32., 32., 32.] }
-	}
-
-}
-
 //efficiently create triangle from le_bytes //https://stackoverflow.com/questions/76749778/what-is-the-most-idiomatic-way-to-convert-a-slice-of-u8-array-into-u32-using-u32
 impl From<([u8; 50], [u8; 3], f32)> for Triangle{
 
@@ -107,6 +99,8 @@ impl Mul for Triangle {
 
 //https://de.wikipedia.org/wiki/STL-Schnittstelle
 pub fn from_binary(path: &str, color: [f32; 3], reflectiveness: f32) -> std::io::Result<Mesh>{
+
+	//todo!("read right");
 
 	let mut raw_bytes: Vec<u8> = Vec::with_capacity(File::open(path).unwrap().metadata().unwrap().len() as usize);
 

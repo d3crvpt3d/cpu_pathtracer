@@ -58,32 +58,35 @@ fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3, 
     return [0f32; 3];
   }
 
-  let ray_reflected = *ray - 2f32 * triangle.normal * (ray.dot(triangle.normal));
 
-  let color_reflected = trace(vol, ambient, &ray_reflected, bounces-1, &(hit1 + 1.0e-5 * triangle.normal), sun_dir);
+  let mut color_reflected = [0f32; 3];
 
-  let col: [f32; 3];
+  if triangle.reflectiveness != 0.{
+    let ray_reflected = *ray - 2f32 * triangle.normal * (ray.dot(triangle.normal));
 
-  if hit_light(ray, sun_dir, vol) == 0.{
-    col = [
-      (1f32 - triangle.reflectiveness) * triangle.color[0] + triangle.reflectiveness * color_reflected[0] * ambient,
-      (1f32 - triangle.reflectiveness) * triangle.color[1] + triangle.reflectiveness * color_reflected[1] * ambient,
-      (1f32 - triangle.reflectiveness) * triangle.color[2] + triangle.reflectiveness * color_reflected[2] * ambient
-    ];
-  }else{
-    col = [
-      (1f32 - triangle.reflectiveness) * triangle.color[0] + triangle.reflectiveness * color_reflected[0],
-      (1f32 - triangle.reflectiveness) * triangle.color[1] + triangle.reflectiveness * color_reflected[1],
-      (1f32 - triangle.reflectiveness) * triangle.color[2] + triangle.reflectiveness * color_reflected[2]
-    ];
+    color_reflected = trace(vol, ambient, &ray_reflected, bounces-1, &(hit1 + 1.0e-5 * triangle.normal), sun_dir);
   }
 
-  return col;
+  let sun_light = hit_light(hit1, sun_dir, vol);
+
+  [ ((1f32 - triangle.reflectiveness) * triangle.color[0] + triangle.reflectiveness * color_reflected[0]) * sun_light.max(ambient),
+    ((1f32 - triangle.reflectiveness) * triangle.color[1] + triangle.reflectiveness * color_reflected[1]) * sun_light.max(ambient),
+    ((1f32 - triangle.reflectiveness) * triangle.color[2] + triangle.reflectiveness * color_reflected[2]) * sun_light.max(ambient)]
 }
 
 //TODO: go trough light vec and summarize the different intensitys if visible from hit_point
-fn hit_light(ray: &Vec3, sun_dir: &Vec3, vol: &Volume) -> f32{
-  return 1.;
+fn hit_light(hit_point: Vec3, sun_dir: &Vec3, vol: &Volume) -> f32{
+  
+  let sun_pos = vec3(0.1, 4., 0.1);
+
+  let (_, x) = vol.get_first_triangle_hit(sun_dir, hit_point);
+
+  if x.is_finite(){
+    return 0.;
+  }else{
+    return 2f32 * sun_pos.length()/sun_pos.distance_squared(hit_point);
+  }
+
 }
 
 

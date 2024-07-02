@@ -1,5 +1,5 @@
 use crate::stl_parser::{Mesh, Triangle};
-use glam::{vec3, Vec3};
+use glam::Vec3;
 
 #[derive(Debug)]
 pub struct BvhTree{
@@ -258,7 +258,7 @@ fn split_test(){
 
   let str = std::fs::read_to_string("tests/pyramid_ascii.stl").unwrap();
 
-  let tr_vec = from_ascii(str, [0.; 3], 0.).expect("file not ascii");
+  let tr_vec = from_ascii(&str, [0.; 3], 0.).expect("file not ascii");
 
   let vol = Volume::new(tr_vec, 10, vec3(0., 0.5, -2.), 0);
 
