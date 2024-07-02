@@ -1,5 +1,3 @@
-use std::f32::INFINITY;
-
 use crate::stl_parser::{Mesh, Triangle};
 use glam::{vec3, Vec3};
 
@@ -87,7 +85,7 @@ impl Volume{
     });
 
     let mesh_2 = self.mesh.as_mut().unwrap().split_off(n);
-    
+
     //return childs
     mesh_2
   }
@@ -95,21 +93,13 @@ impl Volume{
   pub fn get_first_triangle_hit(&self, ray: &Vec3, origin: Vec3) -> (Triangle, Vec3){//RGBA, closer AABB is the first half, because it "partitiones" it with [<,=,>]
 
     if self.hit_box(ray, origin).is_finite(){
-      
-      if self.childs.is_some(){
-        
-        //return recursive of nearer child
-        let a = &self.childs.as_ref().unwrap().0;
-        let b = &self.childs.as_ref().unwrap().1;
 
-        if a.hit_box(ray, origin).lt(&b.hit_box(ray, origin)){
-          return a.get_first_triangle_hit(ray, origin);
-        }else{
-          return b.get_first_triangle_hit(ray, origin);
+      if self.mesh.is_some(){
+
+        if self.mesh.as_ref().unwrap().len() == 0{
+          return (Triangle::default(), Vec3::INFINITY);
         }
 
-      }else{//leaf node
-        
         //first Triangle
         let mut best = Volume::hit_triangle(origin, *ray, self.mesh.as_ref().unwrap()[0]);
         let mut best_depth = best.1.distance(origin);
@@ -118,19 +108,44 @@ impl Volume{
         for tr in &self.mesh.as_ref().unwrap()[1..]{
           let out = Volume::hit_triangle(origin, *ray, *tr);
           let dstnc = out.1.distance(origin);
-          
+
           if dstnc < best_depth{
             best_depth = dstnc;
             best = out;
           }
+        }
+        
+        return best;
+      }else{
+
+        //return recursive of nearer child
+        let a = &self.childs.as_ref().unwrap().0;
+        let b = &self.childs.as_ref().unwrap().1;
+
+        if a.hit_box(ray, origin) < b.hit_box(ray, origin){
+          
+          let x = a.get_first_triangle_hit(ray, origin);
+          if x.1.is_finite(){
+            return x;
+          }else{
+            return b.get_first_triangle_hit(ray, origin);
+          }
+        
+        }else{
+          
+          let x = b.get_first_triangle_hit(ray, origin);
+          if x.1.is_finite(){
+            return x;
+          }else{
+            return a.get_first_triangle_hit(ray, origin);
+          }
 
         }
 
-        return best;
       }
 
     }else{
-      return (Triangle{a: Vec3::INFINITY, b: Vec3::INFINITY, c: Vec3::INFINITY, normal: Vec3::ZERO, reflectiveness: 0., color: [0.; 3]}, vec3(INFINITY, INFINITY, INFINITY));
+      return (Triangle::default(), Vec3::INFINITY);
     }
   
   }
@@ -155,7 +170,7 @@ impl Volume{
     let tmax = t0.max(t1);
     
     if tmin.max_element() <= tmax.min_element(){
-      return tmin.distance(vec3(0., 0., 0.));//return distance to closest point of aabb
+      return tmin.length_squared();//return distance to closest point of aabb
     }else {
       return f32::INFINITY;
     }
@@ -166,24 +181,25 @@ pub fn hit_triangle(origin: Vec3, direction: Vec3, triangle: Triangle) -> (Trian
   let e1 = triangle.b - triangle.a;
   let e2 = triangle.c - triangle.a;
   let inf3 = Vec3::INFINITY;
+  let def_triangle = Triangle::default();
   let ray_cross_e2 = direction.cross(e2);
   let det = e1.dot(ray_cross_e2);
   
   if det > -f32::EPSILON && det < f32::EPSILON {
-    return (triangle, inf3); // This ray is parallel to this triangle.
+    return (Triangle::default(), inf3); // This ray is parallel to this triangle.
   }
   
   let inv_det = 1.0 / det;
   let s = origin - triangle.a;
   let u = inv_det * s.dot(ray_cross_e2);
   if u < 0.0 || u > 1.0 {
-    return (triangle, inf3);
+    return (Triangle::default(), inf3);
   }
   
   let s_cross_e1 = s.cross(e1);
   let v = inv_det * direction.dot(s_cross_e1);
   if v < 0.0 || u + v > 1.0 {
-    return (triangle, inf3);
+    return (Triangle::default(), inf3);
   }
   // At this stage we can compute t to find out where the intersection point is on the line.
   let t = inv_det * e2.dot(s_cross_e1);
@@ -193,7 +209,7 @@ pub fn hit_triangle(origin: Vec3, direction: Vec3, triangle: Triangle) -> (Trian
     return (triangle, intersection_point);
   }
   else { // This means that there is a line intersection but not a ray intersection.
-    return (triangle, inf3);
+    return (Triangle::default(), inf3);
   }
 }
 
@@ -242,7 +258,7 @@ fn split_test(){
 
   let str = std::fs::read_to_string("tests/pyramid_ascii.stl").unwrap();
 
-  let tr_vec = from_ascii(str, [0.; 3], 0.);
+  let tr_vec = from_ascii(str, [0.; 3], 0.).expect("file not ascii");
 
   let vol = Volume::new(tr_vec, 10, vec3(0., 0.5, -2.), 0);
 
@@ -251,4 +267,22 @@ fn split_test(){
   let vol_dbg_real = std::fs::read_to_string("tests/vol_dbg_real.txt").unwrap();
 
   assert_eq!(vol_dbg, vol_dbg_real);
+}
+
+#[test]
+fn split_test_binary(){
+
+  use crate::stl_parser::from_binary;
+  use glam::vec3;
+
+  let tr_vec = from_binary("tests/pyramid.stl", [255.; 3], 0.5).expect("file not ascii");
+
+  let vol = Volume::new(tr_vec, 10, vec3(0., 0.5, -2.), 0);
+
+  let vol_dbg = format!("{:#?}", &vol);
+
+  let vol_dbg_real = std::fs::read_to_string("tests/vol_dbg_real.txt").unwrap();
+
+  assert_eq!(vol_dbg, vol_dbg_real);
+
 }

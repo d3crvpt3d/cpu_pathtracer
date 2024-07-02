@@ -36,7 +36,7 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize) -> image::RgbI
   });//iter through pixels end
   
   bar.finish();
-	
+
 	img
 }
 
@@ -51,11 +51,12 @@ fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3, 
 
   let (triangle, hit1) = vol.get_first_triangle_hit(ray, *origin);
 
+  //error pre this
+
   //if no hit
   if !hit1.is_finite(){
     return [0f32; 3];
   }
-
 
   let ray_reflected = *ray - 2f32 * triangle.normal * (ray.dot(triangle.normal));
 
@@ -69,7 +70,7 @@ fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3, 
       (1f32 - triangle.reflectiveness) * triangle.color[1] + triangle.reflectiveness * color_reflected[1] * ambient,
       (1f32 - triangle.reflectiveness) * triangle.color[2] + triangle.reflectiveness * color_reflected[2] * ambient
     ];
-  }else{//multiply by light strength
+  }else{
     col = [
       (1f32 - triangle.reflectiveness) * triangle.color[0] + triangle.reflectiveness * color_reflected[0],
       (1f32 - triangle.reflectiveness) * triangle.color[1] + triangle.reflectiveness * color_reflected[1],
@@ -101,7 +102,7 @@ fn test(){
 
   File::open("tests/pyramid_ascii.stl").unwrap().read_to_string(&mut buf).unwrap();
 
-  let bvh = BvhTree::from_mesh(from_ascii(buf, [127., 127., 255.], 0.9),
+  let bvh = BvhTree::from_mesh(from_ascii(buf, [127., 127., 255.], 0.9).unwrap(),
     5, Vec3 { x: 0., y: 1.5, z: -4. }, 0.1,);
 
   let rays = get_rays::<4,2>(90);
