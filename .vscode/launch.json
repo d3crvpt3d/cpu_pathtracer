@@ -6,7 +6,7 @@
           "type": "cppvsdbg",
           "request": "launch",
           "program": "${workspaceRoot}/target/debug/cpu_pathtracer.exe",
-          "args": ["tests/pyramid_ascii.stl"],
+          "args": ["-n","storage/dragon.stl", "storage/dragon_normal.png"],
           "stopAtEntry": false,
           "cwd": "${workspaceRoot}",
           "environment": [],
