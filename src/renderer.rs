@@ -51,8 +51,6 @@ fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3, 
 
   let (triangle, hit1) = vol.get_first_triangle_hit(ray, *origin);
 
-  //error pre this
-
   //if no hit
   if !hit1.is_finite(){
     return [0f32; 3];
@@ -74,7 +72,7 @@ fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3, 
     ((1f32 - triangle.reflectiveness) * triangle.color[1] + triangle.reflectiveness * color_reflected[1]) * sun_light,
     ((1f32 - triangle.reflectiveness) * triangle.color[2] + triangle.reflectiveness * color_reflected[2]) * sun_light],
 
-    1 => [255./origin.distance_squared(hit1), 255./origin.distance_squared(hit1), 255./origin.distance_squared(hit1)],
+    1 => [255./(origin.distance(hit1) / 2f32).exp2(); 3],
 
     2 => [255. * triangle.normal[0], 255. * triangle.normal[1], 255. * triangle.normal[2]],
 
@@ -86,7 +84,7 @@ fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3, 
 //TODO: go trough light vec and summarize the different intensitys if visible from hit_point
 fn hit_light(hit_point: Vec3, sun_dir: &Vec3, vol: &Volume, ambient: f32) -> f32{
   
-  let sun_pos = vec3(0.1, 100., 0.1);
+  let _sun_pos = vec3(0.1, 100., 0.1);
 
   let (_, x) = vol.get_first_triangle_hit(sun_dir, hit_point);
 
