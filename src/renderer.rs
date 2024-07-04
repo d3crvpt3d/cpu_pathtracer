@@ -91,9 +91,9 @@ fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3, 
   match parameter {
     0 => return [ ((1f32 - triangle.reflectiveness) * triangle.color[0] + triangle.reflectiveness * color_reflected[0]) * sun_light,
     ((1f32 - triangle.reflectiveness) * triangle.color[1] + triangle.reflectiveness * color_reflected[1]) * sun_light,
-    ((1f32 - triangle.reflectiveness) * triangle.color[2] + triangle.reflectiveness * color_reflected[2]) * sun_light],
+    ((1f32 - triangle.reflectiveness) * triangle.color[2] + triangle.reflectiveness * color_reflected[2]) * sun_light],//FIX light
 
-    1 => [255./1.1f32.powf(origin.distance(hit1)); 3],
+    1 => [255./2f32.powf(origin.distance(hit1)/3f32); 3],
 
     2 => [255. * triangle.normal[0], 255. * triangle.normal[1], 255. * triangle.normal[2]],
 

@@ -1,6 +1,3 @@
-#[cfg(test)]
-use ray_caster::get_rays;
-
 pub mod ray_caster{
   use std::f32::consts::PI;
 
@@ -62,7 +59,7 @@ pub mod ray_caster{
     yvec
   }
 
-  pub fn transform_direction(rays: Vec<Vec<[f32; 3]>>, _subdivisions: u32, _xyz: (f32, f32, f32)) -> Vec<Vec<[f32; 3]>>{
+  pub fn transform_direction(rays: Vec<Vec<[f32; 3]>>, _xyz: (f32, f32, f32)) -> Vec<Vec<[f32; 3]>>{
     //TODO
     rays
   }
@@ -70,6 +67,8 @@ pub mod ray_caster{
 
 #[test]
 fn test(){
+  use ray_caster::get_rays;
+
   let rays = get_rays(90, (4, 2), 0);
 
   let mut comp: Vec<Vec<[f32; 3]>> = Vec::new();

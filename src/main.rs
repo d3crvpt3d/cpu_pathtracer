@@ -15,12 +15,12 @@ fn main() -> std::io::Result<()>{
   let camera_pos: Vec3 = Vec3::from_array([0., 0., -2.]);
   let xyz_rotation: (f32, f32, f32) = (0., 0., 0.);
   let bounces = 2;
-  let extra_rays = 1;
+  let extra_rays = 0;
   let max_elements = 20;
-  let color = [128., 128., 128.];
+  let color = [128., 32., 255.];
   let reflectiveness = 0.2;
   let ambient_light = 0.1;
-  let pixels: (usize, usize) = (1920, 1080);
+  let pixels: (usize, usize) = (16000, 9000);
   //settings
   
 
@@ -77,7 +77,7 @@ fn main() -> std::io::Result<()>{
   println!("Generating Rays");
   let mut rays = get_rays(fov, pixels, extra_rays+1);//get rays -fov/2..=fov/2 with subdivisions
 
-  rays = raycaster::ray_caster::transform_direction(rays, extra_rays+1, xyz_rotation);//TODO rotate camera
+  rays = raycaster::ray_caster::transform_direction(rays, xyz_rotation);//TODO rotate camera
 
   println!("Pathtracing");
   match parameter {
