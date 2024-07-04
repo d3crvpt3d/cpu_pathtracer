@@ -93,11 +93,7 @@ fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3, 
     ((1f32 - triangle.reflectiveness) * triangle.color[1] + triangle.reflectiveness * color_reflected[1]) * sun_light,
     ((1f32 - triangle.reflectiveness) * triangle.color[2] + triangle.reflectiveness * color_reflected[2]) * sun_light],
 
-<<<<<<< HEAD
-    1 => [255./(origin.distance(hit1) / 2f32).exp2(); 3],
-=======
     1 => [255./1.1f32.powf(origin.distance(hit1)); 3],
->>>>>>> c1be80e83107dc8eda8312676f8afc78bb4a160f
 
     2 => [255. * triangle.normal[0], 255. * triangle.normal[1], 255. * triangle.normal[2]],
 
