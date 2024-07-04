@@ -122,23 +122,17 @@ impl Volume{
         let a = &self.childs.as_ref().unwrap().0;
         let b = &self.childs.as_ref().unwrap().1;
 
-        if a.hit_box(ray, origin) < b.hit_box(ray, origin){
+        let a_t = a.get_first_triangle_hit(ray, origin);
+        let b_t = b.get_first_triangle_hit(ray, origin);
+
+
+        if a_t.1.distance_squared(origin) < b_t.1.distance_squared(origin){
           
-          let x = a.get_first_triangle_hit(ray, origin);
-          if x.1.is_finite(){
-            return x;
-          }else{
-            return b.get_first_triangle_hit(ray, origin);
-          }
+          return a_t;
         
         }else{
           
-          let x = b.get_first_triangle_hit(ray, origin);
-          if x.1.is_finite(){
-            return x;
-          }else{
-            return a.get_first_triangle_hit(ray, origin);
-          }
+          return b_t;
 
         }
 

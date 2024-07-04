@@ -12,7 +12,7 @@ fn main() -> std::io::Result<()>{
   
   //settings
   let fov: usize = 90;
-  let camera_pos: Vec3 = Vec3::from_array([-0.5, 1., -4.]);
+  let camera_pos: Vec3 = Vec3::from_array([0., 0., -2.]);
   let bounces = 2;
   let max_elements = 20;
   let color = [128., 128., 128.];
