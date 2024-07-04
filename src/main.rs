@@ -75,15 +75,15 @@ fn main() -> std::io::Result<()>{
   let bvh = BvhTree::from_mesh(mesh, max_elements, camera_pos, ambient_light);//generate BVH tree
 
   println!("Generating Rays");
-  let mut rays = get_rays(fov, pixels, extra_rays);//get rays -fov/2..=fov/2 with subdivisions
+  let mut rays = get_rays(fov, pixels, extra_rays+1);//get rays -fov/2..=fov/2 with subdivisions
 
-  rays = raycaster::ray_caster::transform_direction(rays, extra_rays, xyz_rotation);//TODO rotate camera
+  rays = raycaster::ray_caster::transform_direction(rays, extra_rays+1, xyz_rotation);//TODO rotate camera
 
   println!("Pathtracing");
   match parameter {
-    0 => renderer::render_and_save(bvh, rays, out_path, bounces, parameter, extra_rays),
-    1 => renderer::render_and_save(bvh, rays, out_path, 0, parameter, extra_rays),
-    2 => renderer::render_and_save(bvh, rays, out_path, 0, parameter, extra_rays),
+    0 => renderer::render_and_save(bvh, rays, out_path, bounces, parameter, extra_rays + 1),
+    1 => renderer::render_and_save(bvh, rays, out_path, 0, parameter, 1),
+    2 => renderer::render_and_save(bvh, rays, out_path, 0, parameter, 1),
     _ => eprintln!("wrong format for parameter"),
   }
 

@@ -13,12 +13,12 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize, parameter: usi
 
   let sun_dir = vec3(0., 1., 0.);
 
-	let imgx = rays[0].len();
-	let imgy = rays.len();
+	let imgx = rays[0].len() / extra_rays as usize;
+	let imgy = rays.len()  / extra_rays as usize;
 
 	let mut img = image::RgbImage::new(
-    (imgx as u32) * extra_rays,
-    (imgy as u32) * extra_rays
+    imgx as u32,
+    imgy as u32
   );
 
   let bar = indicatif::ProgressBar::new((imgx*imgy) as u64);
@@ -44,15 +44,15 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize, parameter: usi
 
     //sum rays pro pixel
     let mut tmp_sum = [0f32; 3];
-    for col in pixel_rays{
+    for col in &pixel_rays{
       tmp_sum[0] += col[0];
       tmp_sum[1] += col[1];
       tmp_sum[2] += col[2];
     }
 
-    (*pixel).0[0] = tmp_sum[0] as u8;
-    (*pixel).0[1] = tmp_sum[1] as u8;
-    (*pixel).0[2] = tmp_sum[2] as u8;
+    (*pixel).0[0] = (tmp_sum[0] / pixel_rays.len() as f32) as u8;
+    (*pixel).0[1] = (tmp_sum[1] / pixel_rays.len() as f32) as u8;
+    (*pixel).0[2] = (tmp_sum[2] / pixel_rays.len() as f32) as u8;
 
   });//iter through pixels end
   

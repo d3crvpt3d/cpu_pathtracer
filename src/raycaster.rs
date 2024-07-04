@@ -9,24 +9,26 @@ pub mod ray_caster{
   //0→x
   pub fn get_rays(fov: usize, pixels: (usize, usize), subdivisions: u32) -> Vec<Vec<[f32; 3]>>{
 
+    let new_pix = (pixels.0 * subdivisions as usize, pixels.1 * subdivisions as usize);
+
     //a = steigung
     let ax: f32 = f32::tan((fov as f32 / 360f32) * PI);//a/X*Y/1
-    let ay: f32 = ax*((pixels.1-1) as f32/(pixels.0-1) as f32);//a/X*Y/1
+    let ay: f32 = ax*((new_pix.1-1) as f32/(new_pix.0-1) as f32);//a/X*Y/1
 
 
-    let xf = (pixels.0-1) as f32;
-    let yf = (pixels.1-1) as f32;
+    let xf = (new_pix.0 as usize-1) as f32;
+    let yf = (new_pix.1 as usize-1) as f32;
 
-    let mut yvec: Vec<Vec<[f32; 3]>> = Vec::with_capacity(pixels.1 << subdivisions);
+    let mut yvec: Vec<Vec<[f32; 3]>> = Vec::with_capacity(new_pix.1);
 
 
-    let mut y = pixels.1-1;
+    let mut y = new_pix.1-1;
 
     loop{
 
-      let mut xvec: Vec<[f32; 3]> = Vec::with_capacity(pixels.0 << subdivisions);
+      let mut xvec: Vec<[f32; 3]> = Vec::with_capacity(new_pix.0);
 
-      for x in 0..pixels.0{
+      for x in 0..new_pix.0{
         let x_calc: f32 = ax * (((2*x) as f32 / xf) - 1.);
         let y_calc: f32 = ay * (((2*y) as f32 / yf) - 1.);
 
