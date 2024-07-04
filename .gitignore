@@ -1,7 +1,7 @@
 /target
 *.bvh
 *.msh
-/.vscode
+.vscode
 *.obj
 *.stl
 *.txt

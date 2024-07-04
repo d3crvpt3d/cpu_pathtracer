@@ -4,19 +4,22 @@ use image;
 use indicatif::ProgressStyle;
 use rayon::prelude::*;
 
-pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &str, bounces: usize, parameter: usize){
-  let img = render(bvh, rays, bounces, parameter);
+pub fn render_and_save(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, path: &str, bounces: usize, parameter: usize, extra_rays: u32){
+  let img = render(bvh, rays, bounces, parameter, extra_rays);
   img.save_with_format(path, image::ImageFormat::Png).expect("cant write picture");
 }
 
-fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize, parameter: usize) -> image::RgbImage{// [[px; X]; Y]
+fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize, parameter: usize, extra_rays: u32) -> image::RgbImage{// [[px; X]; Y]
 
   let sun_dir = vec3(0., 1., 0.);
 
-	let imgx = rays[0].len();
-	let imgy = rays.len();
+	let imgx = rays[0].len() / extra_rays as usize;
+	let imgy = rays.len()  / extra_rays as usize;
 
-	let mut img = image::RgbImage::new( imgx as u32, imgy as u32);
+	let mut img = image::RgbImage::new(
+    imgx as u32,
+    imgy as u32
+  );
 
   let bar = indicatif::ProgressBar::new((imgx*imgy) as u64);
   bar.set_style(ProgressStyle::with_template("{wide_bar:.green/blue} {eta}").unwrap().progress_chars("=>-"));
@@ -25,13 +28,31 @@ fn render(bvh: BvhTree, rays: Vec<Vec<[f32; 3]>>, bounces: usize, parameter: usi
 	img.par_enumerate_pixels_mut().for_each(|(x, y, pixel)| {//iter through pixels with par_iter
     bar.inc(1);
 
-    let ray = Vec3::from_array(rays[y as usize][x as usize]).normalize();
+    let mut pixel_rays: Vec<[f32; 3]> = Vec::with_capacity((extra_rays*extra_rays) as usize);
+    
+    for iy in 0..extra_rays{
 
-    let traced_color: [f32; 3] = trace(&bvh.root, bvh.ambient, &ray, bounces+1, &bvh.root.camera_pos, &sun_dir, parameter);
+      for ix in 0..extra_rays{
 
-    (*pixel).0[0] = traced_color[0] as u8;
-    (*pixel).0[1] = traced_color[1] as u8;
-    (*pixel).0[2] = traced_color[2] as u8;
+        let ray = Vec3::from_array(rays[(y * extra_rays + iy) as usize][(x * extra_rays + ix) as usize]).normalize();
+
+        pixel_rays.push(trace(&bvh.root, bvh.ambient, &ray, bounces+1, &bvh.root.camera_pos, &sun_dir, parameter));
+
+      }
+
+    }
+
+    //sum rays pro pixel
+    let mut tmp_sum = [0f32; 3];
+    for col in &pixel_rays{
+      tmp_sum[0] += col[0];
+      tmp_sum[1] += col[1];
+      tmp_sum[2] += col[2];
+    }
+
+    (*pixel).0[0] = (tmp_sum[0] / pixel_rays.len() as f32) as u8;
+    (*pixel).0[1] = (tmp_sum[1] / pixel_rays.len() as f32) as u8;
+    (*pixel).0[2] = (tmp_sum[2] / pixel_rays.len() as f32) as u8;
 
   });//iter through pixels end
   
@@ -72,7 +93,11 @@ fn trace(vol: &Volume, ambient: f32, ray: &Vec3, bounces: usize, origin: &Vec3, 
     ((1f32 - triangle.reflectiveness) * triangle.color[1] + triangle.reflectiveness * color_reflected[1]) * sun_light,
     ((1f32 - triangle.reflectiveness) * triangle.color[2] + triangle.reflectiveness * color_reflected[2]) * sun_light],
 
+<<<<<<< HEAD
     1 => [255./(origin.distance(hit1) / 2f32).exp2(); 3],
+=======
+    1 => [255./1.1f32.powf(origin.distance(hit1)); 3],
+>>>>>>> c1be80e83107dc8eda8312676f8afc78bb4a160f
 
     2 => [255. * triangle.normal[0], 255. * triangle.normal[1], 255. * triangle.normal[2]],
 
@@ -115,9 +140,9 @@ fn test(){
   let bvh = BvhTree::from_mesh(from_ascii(&buf, [127., 127., 255.], 0.9).unwrap(),
     5, Vec3 { x: 0., y: 1.5, z: -4. }, 0.1,);
 
-  let rays = get_rays::<4,2>(90);
+  let rays = get_rays(90, (4, 2), 0);
 
-  let test = render(bvh, rays, 0, 2);
+  let test = render(bvh, rays, 0, 2, 0);
 
   let real = ImageBuffer::from_vec(4, 2, 
   vec![]
