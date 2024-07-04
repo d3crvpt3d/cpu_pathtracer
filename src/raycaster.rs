@@ -7,26 +7,26 @@ pub mod ray_caster{
   //y z
   //↑↗
   //0→x
-  pub fn get_rays<const X: usize, const Y: usize>(fov: usize) -> Vec<Vec<[f32; 3]>>{
+  pub fn get_rays(fov: usize, pixels: (usize, usize), subdivisions: u32) -> Vec<Vec<[f32; 3]>>{
 
     //a = steigung
     let ax: f32 = f32::tan((fov as f32 / 360f32) * PI);//a/X*Y/1
-    let ay: f32 = ax*((Y-1) as f32/(X-1) as f32);//a/X*Y/1
+    let ay: f32 = ax*((pixels.1-1) as f32/(pixels.0-1) as f32);//a/X*Y/1
 
 
-    let xf = (X-1) as f32;
-    let yf = (Y-1) as f32;
+    let xf = (pixels.0-1) as f32;
+    let yf = (pixels.1-1) as f32;
 
-    let mut yvec: Vec<Vec<[f32; 3]>> = Vec::with_capacity(Y);
+    let mut yvec: Vec<Vec<[f32; 3]>> = Vec::with_capacity(pixels.1 << subdivisions);
 
 
-    let mut y = Y-1;
+    let mut y = pixels.1-1;
 
     loop{
 
-      let mut xvec: Vec<[f32; 3]> = Vec::with_capacity(X);
+      let mut xvec: Vec<[f32; 3]> = Vec::with_capacity(pixels.0 << subdivisions);
 
-      for x in 0..X{
+      for x in 0..pixels.0{
         let x_calc: f32 = ax * (((2*x) as f32 / xf) - 1.);
         let y_calc: f32 = ay * (((2*y) as f32 / yf) - 1.);
 
@@ -44,7 +44,7 @@ pub mod ray_caster{
     //DEBUG
     //DEBUG
     //DEBUG
-    // let mut rays_img = image::RgbImage::new(X as u32, Y as u32);
+    // let mut rays_img = image::RgbImage::new(X as u32, pixels.0 as u32);
     
     // for (x, y, pixel) in rays_img.enumerate_pixels_mut(){
     //   *pixel = image::Rgb([ (yvec[y as usize][x as usize][0].atan() * 255f32) as u8,
@@ -60,7 +60,7 @@ pub mod ray_caster{
     yvec
   }
 
-  pub fn transform_direction(rays: Vec<Vec<[f32; 3]>>) -> Vec<Vec<[f32; 3]>>{
+  pub fn transform_direction(rays: Vec<Vec<[f32; 3]>>, _subdivisions: u32, _xyz: (f32, f32, f32)) -> Vec<Vec<[f32; 3]>>{
     //TODO
     rays
   }
@@ -68,7 +68,7 @@ pub mod ray_caster{
 
 #[test]
 fn test(){
-  let rays = get_rays::<4,2>(90);
+  let rays = get_rays(90, (4, 2), 0);
 
   let mut comp: Vec<Vec<[f32; 3]>> = Vec::new();
   

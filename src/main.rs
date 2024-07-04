@@ -13,12 +13,14 @@ fn main() -> std::io::Result<()>{
   //settings
   let fov: usize = 90;
   let camera_pos: Vec3 = Vec3::from_array([0., 0., -2.]);
+  let xyz_rotation: (f32, f32, f32) = (0., 0., 0.);
   let bounces = 2;
+  let extra_rays = 1;
   let max_elements = 20;
   let color = [128., 128., 128.];
   let reflectiveness = 0.2;
   let ambient_light = 0.1;
-  const PIXELS: (usize, usize) = (16000, 9000);
+  let pixels: (usize, usize) = (1920, 1080);
   //settings
   
 
@@ -73,15 +75,15 @@ fn main() -> std::io::Result<()>{
   let bvh = BvhTree::from_mesh(mesh, max_elements, camera_pos, ambient_light);//generate BVH tree
 
   println!("Generating Rays");
-  let mut rays = get_rays::<{PIXELS.0}, {PIXELS.1}>(fov);
+  let mut rays = get_rays(fov, pixels, extra_rays);//get rays -fov/2..=fov/2 with subdivisions
 
-  rays = raycaster::ray_caster::transform_direction(rays);//TODO
+  rays = raycaster::ray_caster::transform_direction(rays, extra_rays, xyz_rotation);//TODO rotate camera
 
   println!("Pathtracing");
   match parameter {
-    0 => renderer::render_and_save(bvh, rays, out_path, bounces, parameter),
-    1 => renderer::render_and_save(bvh, rays, out_path, 0, parameter),
-    2 => renderer::render_and_save(bvh, rays, out_path, 0, parameter),
+    0 => renderer::render_and_save(bvh, rays, out_path, bounces, parameter, extra_rays),
+    1 => renderer::render_and_save(bvh, rays, out_path, 0, parameter, extra_rays),
+    2 => renderer::render_and_save(bvh, rays, out_path, 0, parameter, extra_rays),
     _ => eprintln!("wrong format for parameter"),
   }
 
