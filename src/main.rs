@@ -20,7 +20,7 @@ fn main() -> std::io::Result<()>{
   let color = [128., 32., 255.];
   let reflectiveness = 0.2;
   let ambient_light = 0.1;
-  let pixels: (usize, usize) = (16000, 9000);
+  let pixels: (usize, usize) = (1920, 1080);
   //settings
   
 
